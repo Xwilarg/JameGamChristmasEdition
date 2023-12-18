@@ -1,0 +1,11 @@
+D:\Projects\JameGamChristmasEdition\Game\Assets\Plugins\Debug\net6.0\JameGam.Common.deps.json
+D:\Projects\JameGamChristmasEdition\Game\Assets\Plugins\Debug\net6.0\JameGam.Common.dll
+D:\Projects\JameGamChristmasEdition\Game\Assets\Plugins\Debug\net6.0\JameGam.Common.pdb
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\JameGam.Common.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\JameGam.Common.AssemblyInfoInputs.cache
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\JameGam.Common.AssemblyInfo.cs
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\JameGam.Common.csproj.CoreCompileInputs.cache
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\JameGam.Common.dll
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\refint\JameGam.Common.dll
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\JameGam.Common.pdb
+D:\Projects\JameGamChristmasEdition\Common\JameGam.Common\obj\Debug\net6.0\ref\JameGam.Common.dll

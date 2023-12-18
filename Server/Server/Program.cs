@@ -20,7 +20,6 @@ void MsgInput()
         Socket.Select(toRead, null, null, -1);
         foreach (var r in toRead)
         {
-            c.C
         }
         Thread.Sleep(10);
     }

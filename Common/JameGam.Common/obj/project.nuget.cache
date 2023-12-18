@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "BhLpRmnuC35b/DJQTY7mNFTpRApbSrsAxkDWJynn+KV9Wx5qCVcXrh4Gs6MgVifT+QltjnyuLebJUucOnW9OHw==",
+  "success": true,
+  "projectFilePath": "D:\\Projects\\JameGamChristmasEdition\\Common\\JameGam.Common\\JameGam.Common.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\xwila\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\xwila\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\xwila\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
