@@ -79,21 +79,26 @@ namespace Server
                     Client client;
                     lock (_clients) client = _clients.First(x => x.Socket == socket);
 
-                    // Read incoming data
-                    var buffer = new byte[1024];
-                    var read = socket.Receive(buffer);
-
-                    if (read == 0)
-                    {
-                        RemoveClient(client);
-                        return;
-                    }
-
-                    //
+                    HandleIncomingData(socket, client);
                 }
 
                 Thread.Sleep(10);
             }
+        }
+
+        private void HandleIncomingData(Socket socket, Client client)
+        {
+            // Read the message length
+            var buffer = new byte[2];
+            socket.Receive(buffer);
+
+            var length = BitConverter.ToUInt16(buffer);
+            buffer = new byte[length];
+
+            // Read the message
+            socket.Receive(buffer);
+
+            //
         }
 
         private void RemoveClient(Client client)
