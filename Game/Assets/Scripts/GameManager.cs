@@ -28,18 +28,12 @@ namespace JameGam
 
                 using MemoryStream ms = new();
                 using BinaryWriter writer = new(ms);
-                writer.Write((short)MessageType.Connected);
+
+                writer.Write((ushort)MessageType.Handshake);
+                writer.Write((ushort)1);
                 writer.Write("Player");
 
-                var length = ms.ToArray().Length;
-
-                using MemoryStream ms2 = new();
-                using BinaryWriter writer2 = new(ms);
-
-                writer2.Write(length);
-                writer2.Write(ms.ToArray());
-
-                var data = ms2.ToArray();
+                var data = ms.ToArray();
                 _tcp.GetStream().Write(data, 0, data.Length);
             }
             catch (System.Exception e)

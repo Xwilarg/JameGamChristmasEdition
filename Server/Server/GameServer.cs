@@ -1,5 +1,7 @@
-﻿using System;
+﻿using JameGam.Common;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,6 +13,8 @@ namespace Server
 {
     internal class GameServer
     {
+        public const int ProtocolVersion = 1;
+
         private TcpListener _listener;
         private CancellationTokenSource _cancellationToken;
 
@@ -79,26 +83,54 @@ namespace Server
                     Client client;
                     lock (_clients) client = _clients.First(x => x.Socket == socket);
 
-                    HandleIncomingData(socket, client);
+                    HandleIncomingData(client);
                 }
 
                 Thread.Sleep(10);
             }
         }
 
-        private void HandleIncomingData(Socket socket, Client client)
+        private void HandleIncomingData(Client client)
         {
-            // Read the message length
-            var buffer = new byte[2];
-            socket.Receive(buffer);
+            var reader = new BinaryReader(client.Stream);
 
-            var length = BitConverter.ToUInt16(buffer);
-            buffer = new byte[length];
+            // Read the message type
+            var messageType = (MessageType)reader.ReadUInt16();
 
-            // Read the message
-            socket.Receive(buffer);
+            if (client.State == ClientState.Connecting)
+            {
+                HandleConnecting(client, messageType, reader);
+            }
+            else
+            {
 
-            //
+            }
+        }
+
+        private void HandleConnecting(Client client, MessageType message, BinaryReader reader)
+        {
+            if (message == MessageType.Handshake)
+            {
+                // Read the handshake
+                var version = reader.ReadUInt16();
+                var name = reader.ReadString();
+
+                if (version != ProtocolVersion)
+                {
+                    Console.WriteLine($"Dropping {name} for version mismatch. {version} != {ProtocolVersion}");
+                    RemoveClient(client);
+
+                    return;
+                }
+
+                // Set the client as connected
+                client.Name = name;
+                client.State = ClientState.Connected;
+
+                Console.WriteLine($"{name} joined");
+            }
+
+            // Else do nothing, we ignore other messages before handshake
         }
 
         private void RemoveClient(Client client)
