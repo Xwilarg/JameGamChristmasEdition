@@ -12,14 +12,14 @@ namespace JameGam
 
         private PlayerController _player;
 
-        private TcpClient _tcp;
+        private UdpClient _udp;
 
         private void Awake()
         {
             try
             {
-                _tcp = new TcpClient();
-                _tcp.Connect("localhost", 9999);
+                _udp = new UdpClient();
+                _udp.Connect("localhost", 9999);
             }
             catch (System.Exception e)
             {
