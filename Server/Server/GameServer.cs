@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Server
 {
+    /// <summary>
+    /// The game server for processing all connections
+    /// </summary>
     internal class GameServer
     {
         public const int ProtocolVersion = 1;
@@ -20,6 +21,10 @@ namespace Server
 
         private List<Client> _clients;
 
+        /// <summary>
+        /// Creates a new game server
+        /// </summary>
+        /// <param name="port">The port to listen on</param>
         public GameServer(int port)
         {
             _listener = new TcpListener(IPAddress.Any, port);
@@ -28,6 +33,9 @@ namespace Server
             _clients = new();
         }
 
+        /// <summary>
+        /// Starts the game server
+        /// </summary>
         public void Start()
         {
             _listener.Start();
@@ -39,6 +47,9 @@ namespace Server
             Console.WriteLine("Server started, ready to receive connections");
         }
 
+        /// <summary>
+        /// Stops the game server
+        /// </summary>
         public void Stop()
         {
             Console.WriteLine("Stopping server");
@@ -47,6 +58,9 @@ namespace Server
             _listener.Stop();
         }
 
+        /// <summary>
+        /// Starts accepting clients, this call is blocking
+        /// </summary>
         private void AcceptClients()
         {
             var stoppingToken = _cancellationToken.Token;
@@ -64,6 +78,9 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Starts handling clients, this call is blocking
+        /// </summary>
         private void HandleClients()
         {
             var stoppingToken = _cancellationToken.Token;
@@ -90,6 +107,10 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Handles incoming data from a client
+        /// </summary>
+        /// <param name="client">The client to receive data from</param>
         private void HandleIncomingData(Client client)
         {
             var reader = new BinaryReader(client.Stream);
@@ -107,6 +128,12 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Handles incoming data from a client during the connecting state
+        /// </summary>
+        /// <param name="client">The client to receive data from</param>
+        /// <param name="message">The message type</param>
+        /// <param name="reader">The message reader</param>
         private void HandleConnecting(Client client, MessageType message, BinaryReader reader)
         {
             if (message == MessageType.Handshake)
@@ -133,6 +160,10 @@ namespace Server
             // Else do nothing, we ignore other messages before handshake
         }
 
+        /// <summary>
+        /// Removes a client from the server
+        /// </summary>
+        /// <param name="client">The client to remove</param>
         private void RemoveClient(Client client)
         {
             lock (_clients) _clients.Remove(client);
