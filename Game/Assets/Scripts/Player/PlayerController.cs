@@ -8,6 +8,8 @@ namespace JameGam.Player
 
         private Vector2 _mov;
 
+        public Vector2 Velocity => _rb.velocity;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
