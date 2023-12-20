@@ -1,4 +1,5 @@
 ﻿using JameGam.Common;
+using Server.Message;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,6 +21,7 @@ namespace Server
         private CancellationTokenSource _cancellationToken;
 
         private List<Client> _clients;
+        private int _nextId;
 
         /// <summary>
         /// Creates a new game server
@@ -152,12 +154,43 @@ namespace Server
 
                 // Set the client as connected
                 client.Name = name;
+                client.Id = _nextId++;
                 client.State = ClientState.Connected;
 
                 Console.WriteLine($"{name} joined");
+
+                // Send connected to everyone
+                Broadcast(new ConnectedMessage(client.Id, name), client);
             }
 
             // Else do nothing, we ignore other messages before handshake
+        }
+
+        /// <summary>
+        /// Broadcasts a message to all clients
+        /// </summary>
+        /// <param name="message">The message</param>
+        /// <param name="exclude">The client to exclude sending the message to</param>
+        private void Broadcast(IMessage message, Client? exclude = null)
+        {
+            // Write the message to a buffer
+            var stream = new MemoryStream();
+            var writer = new BinaryWriter(stream);
+
+            message.Write(writer);
+            var data = stream.ToArray();
+
+            // Send the message to all clients
+            lock (_clients)
+            {
+                foreach (var client in _clients)
+                {
+                    if (client.State == ClientState.Connecting) continue;
+                    if (exclude != null && exclude == client) continue;
+
+                    client.SendMessage(message.Type, data);
+                }
+            }
         }
 
         /// <summary>
@@ -169,6 +202,9 @@ namespace Server
             lock (_clients) _clients.Remove(client);
 
             client.Socket.Close();
+
+            // Send disconected to everyone
+            Broadcast(new DisconnectedMessage(client.Id));
         }
     }
 }
