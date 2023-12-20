@@ -120,6 +120,8 @@ namespace Server
             // Read the message type
             var messageType = (MessageType)reader.ReadUInt16();
 
+            Console.WriteLine($"> [{client.Id}] {messageType}");
+
             if (client.State == ClientState.Connecting)
             {
                 HandleConnecting(client, messageType, reader);
