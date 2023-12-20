@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.PlayerSettings;
 
 namespace JameGam
 {
@@ -23,6 +24,8 @@ namespace JameGam
 
         private readonly Dictionary<int, Player.NetworkPlayer> _networkPlayers = new();
         private readonly List<int> _toInstantiate = new();
+
+        private Thread _networkThread;
 
         private void Awake()
         {
@@ -42,7 +45,8 @@ namespace JameGam
                 var data = ms.ToArray();
                 _tcp.GetStream().Write(data, 0, data.Length);
 
-                new Thread(new ThreadStart(ListenIncomingMessages)).Start();
+                _networkThread = new Thread(new ThreadStart(ListenIncomingMessages));
+                _networkThread.Start();
 
                 _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
             }
@@ -164,6 +168,21 @@ namespace JameGam
             if (_player != null && value.performed)
             {
                 StartCoroutine(_player.OnAttack());
+            }
+        }
+
+        private void OnDestroy()
+        {
+            _networkThread.Abort();
+            if (_tcp.Connected)
+            {
+                using MemoryStream ms = new();
+                using BinaryWriter writer = new(ms);
+
+                writer.Write((ushort)MessageType.Disconnected);
+
+                var data = ms.ToArray();
+                _tcp.GetStream().Write(data, 0, data.Length);
             }
         }
     }
