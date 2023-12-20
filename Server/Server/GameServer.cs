@@ -3,6 +3,7 @@ using Server.Message;
 using Server.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -130,6 +131,8 @@ namespace Server
             // Read the message type
             var messageType = (MessageType)reader.ReadUInt16();
 
+            Debug.WriteLine($"{client.Id}->S {messageType}");
+
             if (client.State == ClientState.Connecting)
             {
                 HandleConnecting(client, messageType, reader);
@@ -171,6 +174,9 @@ namespace Server
 
                 // Send connected to everyone
                 Broadcast(new ConnectedMessage(client.Id, name), client);
+
+                // Send all players to the client
+                SendPlayers(client);
             }
 
             // Else do nothing, we ignore other messages before handshake
@@ -189,6 +195,8 @@ namespace Server
                 case MessageType.SpacialInfo:
                     var pos = reader.ReadVector2();
                     var vel = reader.ReadVector2();
+
+                    client.Position = pos;
 
                     Broadcast(new SpacialMessage(client.Id, pos, vel), client);
                     break;
@@ -236,6 +244,25 @@ namespace Server
             {
                 // Send disconected to everyone
                 Broadcast(new DisconnectedMessage(client.Id));
+            }
+        }
+
+        /// <summary>
+        /// Sends all the players to the client upon join
+        /// </summary>
+        /// <param name="client">The client</param>
+        private void SendPlayers(Client client)
+        {
+            lock (_clients)
+            {
+                foreach (var c in _clients)
+                {
+                    if (client.State == ClientState.Connecting || client == c) continue;
+
+                    // TODO maybe this should be a seperate packet with all clients
+                    var message = new ConnectedMessage(c.Id, c.Name);
+                    client.SendMessage(message);
+                }
             }
         }
     }
