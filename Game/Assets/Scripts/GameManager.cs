@@ -27,13 +27,12 @@ namespace JameGam
 
         private Thread _networkThread;
 
-        private void Awake()
+        public bool Connect(string ip, int port)
         {
-            Instance = this;
             try
             {
                 _tcp = new TcpClient();
-                _tcp.Connect("localhost", 9999);
+                _tcp.Connect(ip, port);
 
                 using MemoryStream ms = new();
                 using BinaryWriter writer = new(ms);
@@ -49,11 +48,18 @@ namespace JameGam
                 _networkThread.Start();
 
                 _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
+                return true;
             }
             catch (System.Exception e)
             {
                 Debug.LogException(e);
             }
+            return false;
+        }
+
+        private void Awake()
+        {
+            Instance = this;
         }
 
         private void Update()
