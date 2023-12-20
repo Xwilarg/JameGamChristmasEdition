@@ -1,5 +1,6 @@
 using JameGam.Common;
 using JameGam.Player;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -13,11 +14,13 @@ namespace JameGam
         public static GameManager Instance { get; private set; }
 
         [SerializeField]
-        private GameObject _playerPrefab;
+        private GameObject _playerPrefab, _networkPlayerPrefab;
 
         private PlayerController _player;
 
         private TcpClient _tcp;
+
+        private readonly Dictionary<int, Player.NetworkPlayer> _networkPlayers = new();
 
         private void Awake()
         {
@@ -37,6 +40,7 @@ namespace JameGam
                 var data = ms.ToArray();
                 _tcp.GetStream().Write(data, 0, data.Length);
 
+                new Thread(new ThreadStart(ListenIncomingMessages)).Start();
 
                 _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
             }
@@ -60,7 +64,37 @@ namespace JameGam
                 switch (msg)
                 {
                     case MessageType.Connected:
-                        // TODO
+                        {
+                            var id = reader.ReadInt32();
+
+                            if (_networkPlayers.ContainsKey(id))
+                            {
+                                Debug.LogWarning("Received connection message for a player already connected");
+                            }
+                            else
+                            {
+                                var p = Instantiate(_networkPlayerPrefab, Vector2.zero, Quaternion.identity).GetComponent<Player.NetworkPlayer>();
+                                _networkPlayers.Add(id, p);
+                            }
+                        }
+                        break;
+
+                    case MessageType.SpacialInfo:
+                        {
+                            var id = reader.ReadInt32();
+
+                            if (!_networkPlayers.ContainsKey(id))
+                            {
+                                Debug.LogWarning("Received message for a player not connected");
+                            }
+                            else
+                            {
+                                var pos = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                                var vel = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+
+                                _networkPlayers[id].SetSpacialInfo(pos, vel);
+                            }
+                        }
                         break;
 
                     default:

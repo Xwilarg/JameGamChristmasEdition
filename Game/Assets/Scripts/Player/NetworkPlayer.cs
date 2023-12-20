@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Player
+namespace JameGam.Player
 {
     public class NetworkPlayer : MonoBehaviour
     {
