@@ -2,6 +2,7 @@ using JameGam.Common;
 using JameGam.Player;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace JameGam
         private TcpClient _tcp;
 
         private readonly Dictionary<int, Player.NetworkPlayer> _networkPlayers = new();
+        private readonly List<int> _toInstantiate = new();
 
         private void Awake()
         {
@@ -50,57 +52,87 @@ namespace JameGam
             }
         }
 
+        private void Update()
+        {
+            if (_toInstantiate.Any())
+            {
+                lock(_toInstantiate)
+                {
+                    foreach (var id in _toInstantiate)
+                    {
+                        var p = Instantiate(_networkPlayerPrefab, Vector2.zero, Quaternion.identity).GetComponent<Player.NetworkPlayer>();
+                        _networkPlayers[id] = p;
+                    }
+                    _toInstantiate.Clear();
+                }
+            }
+        }
+
         public void ListenIncomingMessages()
         {
             while (Thread.CurrentThread.IsAlive)
             {
-                byte[] buffer = new byte[1024];
-                _tcp.GetStream().Read(buffer, 0, 1024);
-
-                using MemoryStream ms = new(buffer);
-                using BinaryReader reader = new(ms);
-
-                var msg = (MessageType)reader.ReadUInt16();
-                switch (msg)
+                try
                 {
-                    case MessageType.Connected:
-                        {
-                            var id = reader.ReadInt32();
+                    byte[] buffer = new byte[1024];
+                    _tcp.GetStream().Read(buffer, 0, 1024);
 
-                            if (_networkPlayers.ContainsKey(id))
+                    using MemoryStream ms = new(buffer);
+                    using BinaryReader reader = new(ms);
+
+                    var msg = (MessageType)reader.ReadUInt16();
+                    switch (msg)
+                    {
+                        case MessageType.Connected:
                             {
-                                Debug.LogWarning("Received connection message for a player already connected");
+                                var id = reader.ReadInt32();
+
+                                if (_networkPlayers.ContainsKey(id))
+                                {
+                                    Debug.LogWarning($"Received connection message for a player already connected: {id}");
+                                }
+                                else
+                                {
+                                    _networkPlayers.Add(id, null);
+                                    lock (_toInstantiate)
+                                    {
+                                        _toInstantiate.Add(id);
+                                    }
+                                    Debug.LogWarning($"New player registered with ID {id}");
+                                }
                             }
-                            else
+                            break;
+
+                        case MessageType.SpacialInfo:
                             {
-                                var p = Instantiate(_networkPlayerPrefab, Vector2.zero, Quaternion.identity).GetComponent<Player.NetworkPlayer>();
-                                _networkPlayers.Add(id, p);
+                                var id = reader.ReadInt32();
+
+                                if (!_networkPlayers.ContainsKey(id))
+                                {
+                                    Debug.LogWarning($"Received message for a player not connected: {id}");
+                                }
+                                else if (_networkPlayers[id] == null)
+                                { } // Player not instanciated yet
+                                else
+                                {
+                                    var pos = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                                    var vel = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+
+                                    _networkPlayers[id].SetSpacialInfo(pos, vel);
+                                }
                             }
-                        }
-                        break;
+                            break;
 
-                    case MessageType.SpacialInfo:
-                        {
-                            var id = reader.ReadInt32();
-
-                            if (!_networkPlayers.ContainsKey(id))
-                            {
-                                Debug.LogWarning("Received message for a player not connected");
-                            }
-                            else
-                            {
-                                var pos = new Vector2(reader.ReadSingle(), reader.ReadSingle());
-                                var vel = new Vector2(reader.ReadSingle(), reader.ReadSingle());
-
-                                _networkPlayers[id].SetSpacialInfo(pos, vel);
-                            }
-                        }
-                        break;
-
-                    default:
-                        Debug.LogWarning($"Unknown network message {msg}");
-                        break;
+                        default:
+                            Debug.LogWarning($"Unknown network message {msg}");
+                            break;
+                    }
                 }
+                catch (System.Exception e)
+                {
+                    Debug.LogException(e);
+                }
+                Thread.Sleep(10);
             }
         }
 
