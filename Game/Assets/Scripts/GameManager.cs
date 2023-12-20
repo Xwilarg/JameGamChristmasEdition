@@ -2,6 +2,7 @@ using JameGam.Common;
 using JameGam.Player;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -42,6 +43,30 @@ namespace JameGam
             catch (System.Exception e)
             {
                 Debug.LogException(e);
+            }
+        }
+
+        public void ListenIncomingMessages()
+        {
+            while (Thread.CurrentThread.IsAlive)
+            {
+                byte[] buffer = new byte[1024];
+                _tcp.GetStream().Read(buffer, 0, 1024);
+
+                using MemoryStream ms = new(buffer);
+                using BinaryReader reader = new(ms);
+
+                var msg = (MessageType)reader.ReadUInt16();
+                switch (msg)
+                {
+                    case MessageType.Connected:
+                        // TODO
+                        break;
+
+                    default:
+                        Debug.LogWarning($"Unknown network message {msg}");
+                        break;
+                }
             }
         }
 
