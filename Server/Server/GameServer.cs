@@ -1,5 +1,6 @@
 ﻿using JameGam.Common;
 using Server.Message;
+using Server.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -176,7 +177,16 @@ namespace Server
         /// <param name="reader">The message reader</param>
         private void HandleConnected(Client client, MessageType message, BinaryReader reader)
         {
-            //
+            switch (message)
+            {
+                case MessageType.SpacialInfo:
+                    var pos = reader.ReadVector2();
+                    var vel = reader.ReadVector2();
+
+                    var msg = new SpacialMessage(client.Id, pos, vel);
+                    Broadcast(msg, client);
+                    break;
+            }
         }
 
         /// <summary>

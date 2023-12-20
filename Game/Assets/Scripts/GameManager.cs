@@ -54,8 +54,7 @@ namespace JameGam
                 using MemoryStream ms = new();
                 using BinaryWriter writer = new(ms);
 
-                writer.Write((ushort)MessageType.Connected);
-                writer.Write((ushort)1);
+                writer.Write((ushort)MessageType.SpacialInfo);
                 writer.Write(_player.transform.position.x);
                 writer.Write(_player.transform.position.y);
                 writer.Write(_player.Velocity.x);

@@ -13,11 +13,10 @@ namespace Server.Util
         /// </summary>
         /// <param name="writer">The writer</param>
         /// <param name="vector">The vector</param>
-        public static void Write(this BinaryWriter writer, Vector3 vector)
+        public static void Write(this BinaryWriter writer, Vector2 vector)
         {
             writer.Write(vector.X);
             writer.Write(vector.Y);
-            writer.Write(vector.Z);
         }
     }
 }

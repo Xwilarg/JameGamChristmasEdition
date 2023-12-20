@@ -11,7 +11,7 @@ namespace Server.Message
     /// <param name="id">The ID of the client</param>
     /// <param name="position">The client position</param>
     /// <param name="velocity">The client velocity</param>
-    internal class SpacialMessage(int id, Vector3 position, Vector3 velocity) : IMessage
+    internal class SpacialMessage(int id, Vector2 position, Vector2 velocity) : IMessage
     {
         public MessageType Type => MessageType.SpacialInfo;
 
