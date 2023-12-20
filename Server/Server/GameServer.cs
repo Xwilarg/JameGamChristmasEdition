@@ -128,7 +128,7 @@ namespace Server
             }
             else
             {
-
+                HandleConnected(client, messageType, reader);
             }
         }
 
@@ -166,6 +166,17 @@ namespace Server
             }
 
             // Else do nothing, we ignore other messages before handshake
+        }
+
+        /// <summary>
+        /// Handles incoming data from a connected client
+        /// </summary>
+        /// <param name="client">The client to receive data from</param>
+        /// <param name="message">The message type</param>
+        /// <param name="reader">The message reader</param>
+        private void HandleConnected(Client client, MessageType message, BinaryReader reader)
+        {
+            //
         }
 
         /// <summary>
