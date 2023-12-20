@@ -69,8 +69,8 @@ namespace JameGam.Player
                 var hitPos = (Vector2)transform.position + _lastMov * .2f;
                 Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
 
-                Collider[] res = new Collider[1];
-                if (Physics.OverlapSphereNonAlloc(hitPos, 2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                Collider2D[] res = new Collider2D[1];
+                if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
                 {
                     Destroy(res[0].gameObject);
                     Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
