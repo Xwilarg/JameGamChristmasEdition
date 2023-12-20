@@ -3,6 +3,7 @@ using Server.Message;
 using Server.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -104,7 +105,15 @@ namespace Server
                     Client client;
                     lock (_clients) client = _clients.First(x => x.Socket == socket);
 
-                    HandleIncomingData(client);
+                    try
+                    {
+                        HandleIncomingData(client);
+                    }
+                    catch (EndOfStreamException)
+                    {
+                        Console.WriteLine($"Connection dropped with {client.Id}");
+                        RemoveClient(client);
+                    }
                 }
 
                 Thread.Sleep(10);
@@ -120,20 +129,9 @@ namespace Server
             var reader = new BinaryReader(client.Stream);
 
             // Read the message type
-            MessageType messageType;
-            
-            try
-            {
-                messageType = (MessageType)reader.ReadUInt16();
-            }
-            catch (EndOfStreamException)
-            {
-                Console.WriteLine($"Connection dropped with {client.Id}");
-                RemoveClient(client);
-                return;
-            }
+            var messageType = (MessageType)reader.ReadUInt16();
 
-            Console.WriteLine($"> [{client.Id}] {messageType}");
+            Debug.WriteLine($"{client.Id}->S {messageType}");
 
             if (client.State == ClientState.Connecting)
             {
@@ -176,6 +174,9 @@ namespace Server
 
                 // Send connected to everyone
                 Broadcast(new ConnectedMessage(client.Id, name), client);
+
+                // Send all players to the client
+                SendPlayers(client);
             }
 
             // Else do nothing, we ignore other messages before handshake
@@ -195,8 +196,9 @@ namespace Server
                     var pos = reader.ReadVector2();
                     var vel = reader.ReadVector2();
 
-                    var msg = new SpacialMessage(client.Id, pos, vel);
-                    Broadcast(msg, client);
+                    client.Position = pos;
+
+                    Broadcast(new SpacialMessage(client.Id, pos, vel), client);
                     break;
             }
         }
@@ -238,8 +240,30 @@ namespace Server
 
             client.Socket.Close();
 
-            // Send disconected to everyone
-            Broadcast(new DisconnectedMessage(client.Id));
+            if (client.State == ClientState.Connected)
+            {
+                // Send disconected to everyone
+                Broadcast(new DisconnectedMessage(client.Id));
+            }
+        }
+
+        /// <summary>
+        /// Sends all the players to the client upon join
+        /// </summary>
+        /// <param name="client">The client</param>
+        private void SendPlayers(Client client)
+        {
+            lock (_clients)
+            {
+                foreach (var c in _clients)
+                {
+                    if (client.State == ClientState.Connecting || client == c) continue;
+
+                    // TODO maybe this should be a seperate packet with all clients
+                    var message = new ConnectedMessage(c.Id, c.Name);
+                    client.SendMessage(message);
+                }
+            }
         }
     }
 }
