@@ -5,11 +5,15 @@ namespace JameGam.Player
 {
     public class PlayerController : MonoBehaviour
     {
+        [SerializeField]
+        private GameObject _hitVfx;
+
         private Rigidbody2D _rb;
         private SpriteRenderer _sr;
         private Animator _anim;
 
         private Vector2 _mov;
+        private Vector2 _lastMov = Vector2.up;
 
         private bool _canMove = true;
 
@@ -34,6 +38,12 @@ namespace JameGam.Player
             GameManager.Instance.SendSpacialInfo(transform.position, mov);
             if (_canMove)
             {
+                if (mov.magnitude != 0f)
+                {
+                    if (Mathf.Abs(_mov.x) >= Mathf.Abs(_mov.y)) _lastMov = _mov.x < 0f ? Vector2.left : Vector2.right;
+                    else _lastMov = _mov.y < 0f ? Vector2.down : Vector2.up;
+                }
+
                 _anim.SetFloat("X", mov.x);
                 _anim.SetFloat("Y", mov.y);
             }
@@ -46,12 +56,31 @@ namespace JameGam.Player
 
         public IEnumerator OnAttack()
         {
-            _anim.SetBool("IsAttacking", true);
-            _canMove = false;
-            _rb.velocity = Vector2.zero;
-            yield return new WaitForSeconds(.75f);
-            _anim.SetBool("IsAttacking", false);
-            _canMove = true;
+            if (_canMove)
+            {
+                _anim.SetBool("IsAttacking", true);
+                _canMove = false;
+                _anim.SetFloat("X", _lastMov.x);
+                _anim.SetFloat("Y", _lastMov.y);
+                _rb.velocity = Vector2.zero;
+
+                yield return new WaitForSeconds(.25f);
+
+                var hitPos = (Vector2)transform.position + _lastMov * .2f;
+                Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+
+                Collider2D[] res = new Collider2D[1];
+                if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                {
+                    Destroy(res[0].gameObject);
+                    Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+                }
+
+                yield return new WaitForSeconds(.5f);
+
+                _anim.SetBool("IsAttacking", false);
+                _canMove = true;
+            }
         }
     }
 }
