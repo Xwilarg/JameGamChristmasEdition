@@ -1,4 +1,6 @@
-﻿using System.Net.Sockets;
+﻿using JameGam.Common;
+using System;
+using System.Net.Sockets;
 
 namespace Server
 {
@@ -24,8 +26,30 @@ namespace Server
         public ClientState State { get; set; } = ClientState.Connecting;
 
         /// <summary>
+        /// Gets or sets the ID of the client
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the name of the client
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Sends a message to the client
+        /// </summary>
+        /// <param name="type">The message type</param>
+        /// <param name="message">The message data</param>
+        public void SendMessage(MessageType type, byte[] message)
+        {
+            var data = new byte[message.Length + 2];
+            var bytes = BitConverter.GetBytes((ushort)type);
+
+            // Write 2 bytes message type and add data after
+            Array.Copy(bytes, data, 2);
+            Array.Copy(message, 0, data, 2, message.Length);
+
+            Stream.Write(data);
+        }
     }
 }
