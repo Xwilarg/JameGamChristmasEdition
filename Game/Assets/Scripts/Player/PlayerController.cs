@@ -56,21 +56,31 @@ namespace JameGam.Player
 
         public IEnumerator OnAttack()
         {
-            _anim.SetBool("IsAttacking", true);
-            _canMove = false;
-            _anim.SetFloat("X", _lastMov.x);
-            _anim.SetFloat("Y", _lastMov.y);
-            _rb.velocity = Vector2.zero;
-            
-            yield return new WaitForSeconds(.25f);
+            if (_canMove)
+            {
+                _anim.SetBool("IsAttacking", true);
+                _canMove = false;
+                _anim.SetFloat("X", _lastMov.x);
+                _anim.SetFloat("Y", _lastMov.y);
+                _rb.velocity = Vector2.zero;
 
-            var pe = Instantiate(_hitVfx, (Vector2)transform.position + _lastMov * .2f, Quaternion.identity);
-            Destroy(pe, .5f);
+                yield return new WaitForSeconds(.25f);
 
-            yield return new WaitForSeconds(.5f);
-            
-            _anim.SetBool("IsAttacking", false);
-            _canMove = true;
+                var hitPos = (Vector2)transform.position + _lastMov * .2f;
+                Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+
+                Collider[] res = new Collider[1];
+                if (Physics.OverlapSphereNonAlloc(hitPos, 2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                {
+                    Destroy(res[0].gameObject);
+                    Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+                }
+
+                yield return new WaitForSeconds(.5f);
+
+                _anim.SetBool("IsAttacking", false);
+                _canMove = true;
+            }
         }
     }
 }
