@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace Server
 {
@@ -257,7 +256,7 @@ namespace Server
             {
                 foreach (var c in _clients)
                 {
-                    if (client.State == ClientState.Connecting || client == c) continue;
+                    if (c.State == ClientState.Connecting || c == client) continue;
 
                     // TODO maybe this should be a seperate packet with all clients
                     var message = new ConnectedMessage(c.Id, c.Name);
