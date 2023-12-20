@@ -35,13 +35,14 @@ namespace JameGam
 
                 var data = ms.ToArray();
                 _tcp.GetStream().Write(data, 0, data.Length);
+
+
+                _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
             }
             catch (System.Exception e)
             {
                 Debug.LogException(e);
             }
-
-            var p = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity);
         }
 
         public void OnMove(InputAction.CallbackContext value)
@@ -53,21 +54,14 @@ namespace JameGam
                 using MemoryStream ms = new();
                 using BinaryWriter writer = new(ms);
 
-                writer.Write((short)MessageType.Connected);
+                writer.Write((ushort)MessageType.Connected);
+                writer.Write((ushort)1);
                 writer.Write(_player.transform.position.x);
                 writer.Write(_player.transform.position.y);
                 writer.Write(_player.Velocity.x);
                 writer.Write(_player.Velocity.y);
 
-                var length = ms.ToArray().Length;
-
-                using MemoryStream ms2 = new();
-                using BinaryWriter writer2 = new(ms);
-
-                writer2.Write(length);
-                writer2.Write(ms.ToArray());
-
-                var data = ms2.ToArray();
+                var data = ms.ToArray();
                 _tcp.GetStream().Write(data, 0, data.Length);
             }
         }
