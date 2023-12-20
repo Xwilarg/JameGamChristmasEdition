@@ -290,11 +290,19 @@ MonoBehaviour:
     m_ActionId: 3b54ebea-4500-4e92-ad58-2737ad740b12
     m_ActionName: Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
   - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: f5bf3f21-cc8e-459d-b056-35859a9b857b
-    m_ActionName: Player/Look[/Mouse/delta]
-  - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1329159151}
+        m_TargetAssemblyTypeName: JameGam.GameManager, Assembly-CSharp
+        m_MethodName: OnAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 241afcfa-214a-446e-94ae-0137a73bd434
     m_ActionName: Player/Fire[/Mouse/leftButton]
   - m_PersistentCalls:

@@ -45,23 +45,34 @@ namespace JameGam
             }
         }
 
+        public void SendSpacialInfo(Vector2 pos, Vector2 vel)
+        {
+            using MemoryStream ms = new();
+            using BinaryWriter writer = new(ms);
+
+            writer.Write((ushort)MessageType.SpacialInfo);
+            writer.Write(pos.x);
+            writer.Write(pos.y);
+            writer.Write(vel.x);
+            writer.Write(vel.y);
+
+            var data = ms.ToArray();
+            _tcp.GetStream().Write(data, 0, data.Length);
+        }
+
         public void OnMove(InputAction.CallbackContext value)
         {
             if (_player != null)
             {
                 _player.OnMove(value.ReadValue<Vector2>());
+            }
+        }
 
-                using MemoryStream ms = new();
-                using BinaryWriter writer = new(ms);
-
-                writer.Write((ushort)MessageType.SpacialInfo);
-                writer.Write(_player.transform.position.x);
-                writer.Write(_player.transform.position.y);
-                writer.Write(_player.Velocity.x);
-                writer.Write(_player.Velocity.y);
-
-                var data = ms.ToArray();
-                _tcp.GetStream().Write(data, 0, data.Length);
+        public void OnAttack(InputAction.CallbackContext value)
+        {
+            if (_player != null && value.performed)
+            {
+                StartCoroutine(_player.OnAttack());
             }
         }
     }

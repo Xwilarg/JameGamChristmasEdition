@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace JameGam.Player
 {
@@ -10,7 +11,7 @@ namespace JameGam.Player
 
         private Vector2 _mov;
 
-        public Vector2 Velocity => _rb.velocity;
+        private bool _canMove = true;
 
         private void Awake()
         {
@@ -27,14 +28,30 @@ namespace JameGam.Player
 
         private void FixedUpdate()
         {
-            _rb.velocity = _mov;
+            Vector2 mov = _canMove ? _mov : Vector2.zero;
+
+            _rb.velocity = mov;
+            GameManager.Instance.SendSpacialInfo(transform.position, mov);
+            if (_canMove)
+            {
+                _anim.SetFloat("X", mov.x);
+                _anim.SetFloat("Y", mov.y);
+            }
         }
 
         public void OnMove(Vector2 val)
         {
             _mov = val;
-            _anim.SetFloat("X", val.x);
-            _anim.SetFloat("Y", val.y);
+        }
+
+        public IEnumerator OnAttack()
+        {
+            _anim.SetBool("IsAttacking", true);
+            _canMove = false;
+            _rb.velocity = Vector2.zero;
+            yield return new WaitForSeconds(.75f);
+            _anim.SetBool("IsAttacking", false);
+            _canMove = true;
         }
     }
 }
