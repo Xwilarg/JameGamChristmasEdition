@@ -5,6 +5,9 @@ namespace JameGam.Player
 {
     public class PlayerController : MonoBehaviour
     {
+        [SerializeField]
+        private GameObject _hitVfx;
+
         private Rigidbody2D _rb;
         private SpriteRenderer _sr;
         private Animator _anim;
@@ -59,7 +62,12 @@ namespace JameGam.Player
             _anim.SetFloat("Y", _lastMov.y);
             _rb.velocity = Vector2.zero;
             
-            yield return new WaitForSeconds(.75f);
+            yield return new WaitForSeconds(.25f);
+
+            var pe = Instantiate(_hitVfx, (Vector2)transform.position + _lastMov * .2f, Quaternion.identity);
+            Destroy(pe, .5f);
+
+            yield return new WaitForSeconds(.5f);
             
             _anim.SetBool("IsAttacking", false);
             _canMove = true;
