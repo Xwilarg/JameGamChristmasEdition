@@ -10,6 +10,7 @@ namespace JameGam.Player
         private Animator _anim;
 
         private Vector2 _mov;
+        private Vector2 _lastMov = Vector2.up;
 
         private bool _canMove = true;
 
@@ -34,6 +35,12 @@ namespace JameGam.Player
             GameManager.Instance.SendSpacialInfo(transform.position, mov);
             if (_canMove)
             {
+                if (mov.magnitude != 0f)
+                {
+                    if (Mathf.Abs(_mov.x) >= Mathf.Abs(_mov.y)) _lastMov = _mov.x < 0f ? Vector2.left : Vector2.right;
+                    else _lastMov = _mov.y < 0f ? Vector2.down : Vector2.up;
+                }
+
                 _anim.SetFloat("X", mov.x);
                 _anim.SetFloat("Y", mov.y);
             }
@@ -48,8 +55,12 @@ namespace JameGam.Player
         {
             _anim.SetBool("IsAttacking", true);
             _canMove = false;
+            _anim.SetFloat("X", _lastMov.x);
+            _anim.SetFloat("Y", _lastMov.y);
             _rb.velocity = Vector2.zero;
+            
             yield return new WaitForSeconds(.75f);
+            
             _anim.SetBool("IsAttacking", false);
             _canMove = true;
         }
