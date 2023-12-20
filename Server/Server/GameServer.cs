@@ -104,7 +104,15 @@ namespace Server
                     Client client;
                     lock (_clients) client = _clients.First(x => x.Socket == socket);
 
-                    HandleIncomingData(client);
+                    try
+                    {
+                        HandleIncomingData(client);
+                    }
+                    catch (EndOfStreamException)
+                    {
+                        Console.WriteLine($"Connection dropped with {client.Id}");
+                        RemoveClient(client);
+                    }
                 }
 
                 Thread.Sleep(10);
@@ -120,20 +128,7 @@ namespace Server
             var reader = new BinaryReader(client.Stream);
 
             // Read the message type
-            MessageType messageType;
-            
-            try
-            {
-                messageType = (MessageType)reader.ReadUInt16();
-            }
-            catch (EndOfStreamException)
-            {
-                Console.WriteLine($"Connection dropped with {client.Id}");
-                RemoveClient(client);
-                return;
-            }
-
-            Console.WriteLine($"> [{client.Id}] {messageType}");
+            var messageType = (MessageType)reader.ReadUInt16();
 
             if (client.State == ClientState.Connecting)
             {
@@ -195,8 +190,7 @@ namespace Server
                     var pos = reader.ReadVector2();
                     var vel = reader.ReadVector2();
 
-                    var msg = new SpacialMessage(client.Id, pos, vel);
-                    Broadcast(msg, client);
+                    Broadcast(new SpacialMessage(client.Id, pos, vel), client);
                     break;
             }
         }
@@ -238,8 +232,11 @@ namespace Server
 
             client.Socket.Close();
 
-            // Send disconected to everyone
-            Broadcast(new DisconnectedMessage(client.Id));
+            if (client.State == ClientState.Connected)
+            {
+                // Send disconected to everyone
+                Broadcast(new DisconnectedMessage(client.Id));
+            }
         }
     }
 }
