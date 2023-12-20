@@ -6,6 +6,7 @@ namespace JameGam.Player
     {
         private Rigidbody2D _rb;
         private SpriteRenderer _sr;
+        private Animator _anim;
 
         private Vector2 _mov;
 
@@ -15,6 +16,7 @@ namespace JameGam.Player
         {
             _rb = GetComponent<Rigidbody2D>();
             _sr = GetComponent<SpriteRenderer>();
+            _anim = GetComponent<Animator>();
         }
 
         private void Update()
@@ -31,6 +33,8 @@ namespace JameGam.Player
         public void OnMove(Vector2 val)
         {
             _mov = val;
+            _anim.SetFloat("X", val.x);
+            _anim.SetFloat("Y", val.y);
         }
     }
 }
