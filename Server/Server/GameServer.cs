@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace Server
 {
@@ -119,7 +120,18 @@ namespace Server
             var reader = new BinaryReader(client.Stream);
 
             // Read the message type
-            var messageType = (MessageType)reader.ReadUInt16();
+            MessageType messageType;
+            
+            try
+            {
+                messageType = (MessageType)reader.ReadUInt16();
+            }
+            catch (EndOfStreamException)
+            {
+                Console.WriteLine($"Connection dropped with {client.Id}");
+                RemoveClient(client);
+                return;
+            }
 
             Console.WriteLine($"> [{client.Id}] {messageType}");
 
