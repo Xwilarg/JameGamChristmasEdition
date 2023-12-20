@@ -5,6 +5,7 @@ namespace JameGam.Player
     public class PlayerController : MonoBehaviour
     {
         private Rigidbody2D _rb;
+        private SpriteRenderer _sr;
 
         private Vector2 _mov;
 
@@ -13,6 +14,13 @@ namespace JameGam.Player
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
+            _sr = GetComponent<SpriteRenderer>();
+        }
+
+        private void Update()
+        {
+            var targetPos = transform.position.y;
+            _sr.sortingOrder = (int)(-targetPos * 100f);
         }
 
         private void FixedUpdate()
