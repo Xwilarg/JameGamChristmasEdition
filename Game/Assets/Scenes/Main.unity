@@ -30832,6 +30832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 906224687711057722, guid: f9d62158e4d281e4b908f267e29600d4, type: 3}
+  _networkPlayerPrefab: {fileID: 2886066792338492228, guid: e164602bd20a9d04db35420b07bee77a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
