@@ -85,6 +85,7 @@ namespace JameGam.Player
                         Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
 
                         _carry = CarryType.Rock;
+                        _anim.SetInteger("Carrying", 1);
                         GameManager.Instance.UpdateObjectiveCraft();
                     }
 
@@ -107,7 +108,7 @@ namespace JameGam.Player
                         }
                         _carry = CarryType.Sword;
                         GameManager.Instance.UpdateObjectiveSword();
-                        _anim.SetBool("HasSword", true);
+                        _anim.SetInteger("Carrying", 2);
                         yield return new WaitForSeconds(.5f);
 
                         _anim.SetBool("IsAttacking", false);
