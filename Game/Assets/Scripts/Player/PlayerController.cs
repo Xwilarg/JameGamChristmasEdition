@@ -19,6 +19,8 @@ namespace JameGam.Player
 
         private CarryType _carry;
 
+        private bool _isDead;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
@@ -63,6 +65,12 @@ namespace JameGam.Player
             _anim.SetFloat("Y", _lastMov.y);
             _anim.SetBool("IsAttacking", true);
             _rb.velocity = Vector2.zero;
+        }
+
+        public void Die()
+        {
+            _isDead = true;
+            _anim.SetBool("IsDead", true);
         }
 
         public IEnumerator OnAttack()
