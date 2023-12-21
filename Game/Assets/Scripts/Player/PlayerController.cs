@@ -57,6 +57,7 @@ namespace JameGam.Player
         {
             if (collision.CompareTag("Trap"))
             {
+                Die();
                 GameManager.Instance.SendDeath(null);
             }
         }

@@ -7,6 +7,7 @@ namespace JameGam.Player
         public int NetworkID { set; get; }
 
         private Rigidbody2D _rb;
+        private SpriteRenderer _sr;
         private Animator _anim;
 
         private Vector2 _pos, _vel;
@@ -18,6 +19,7 @@ namespace JameGam.Player
         private void Awake()
         {
             _anim = GetComponent<Animator>();
+            _sr = GetComponent<SpriteRenderer>();
             _rb = GetComponent<Rigidbody2D>();
         }
 
