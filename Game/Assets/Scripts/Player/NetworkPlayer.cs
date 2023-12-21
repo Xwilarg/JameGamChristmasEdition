@@ -37,6 +37,9 @@ namespace JameGam.Player
 
                 _anim.SetBool("IsDead", _isDead);
             }
+
+            var targetPos = transform.position.y;
+            _sr.sortingOrder = (int)(-targetPos * 100f);
         }
 
         public void SetSpacialInfo(Vector2 pos, Vector2 vel)
