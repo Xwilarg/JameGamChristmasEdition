@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.PlayerSettings;
 
 namespace JameGam
 {
@@ -17,6 +17,15 @@ namespace JameGam
 
         [SerializeField]
         private GameObject _playerPrefab, _networkPlayerPrefab;
+
+        [SerializeField]
+        private GameObject _objectiveUI;
+
+        [SerializeField]
+        private TMP_Text _objectiveText;
+
+        [SerializeField]
+        private TMP_FontAsset _killFont;
 
         private PlayerController _player;
 
@@ -48,6 +57,7 @@ namespace JameGam
                 _networkThread.Start();
 
                 _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
+                ShowGameUI();
                 return true;
             }
             catch (System.Exception e)
@@ -76,6 +86,22 @@ namespace JameGam
                     _toInstantiate.Clear();
                 }
             }
+        }
+
+        public void ShowGameUI()
+        {
+            _objectiveUI.SetActive(true);
+            _objectiveText.text = "Mine some rocks";
+        }
+
+        public void UpdateObjectiveCraft()
+            => _objectiveText.text = "Craft a fun sword toy";
+
+        public void UpdateObjectiveSword()
+        {
+            _objectiveText.text = "Kill them all";
+            _objectiveText.color = Color.red;
+            _objectiveText.font = _killFont;
         }
 
         public void ListenIncomingMessages()
