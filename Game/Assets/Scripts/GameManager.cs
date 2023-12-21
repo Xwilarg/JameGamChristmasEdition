@@ -37,6 +37,8 @@ namespace JameGam
 
         private Thread _networkThread;
 
+        private int _localPlayerNetworkID = -1;
+
         public bool Connect(string ip, int port)
         {
             try
@@ -56,9 +58,6 @@ namespace JameGam
 
                 _networkThread = new Thread(new ThreadStart(ListenIncomingMessages));
                 _networkThread.Start();
-
-                _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
-                ShowGameUI();
                 return true;
             }
             catch (System.Exception e)
@@ -87,6 +86,12 @@ namespace JameGam
                     }
                     _toInstantiate.Clear();
                 }
+            }
+
+            if (_player == null && _localPlayerNetworkID != -1)
+            {
+                _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
+                ShowGameUI();
             }
         }
 
@@ -126,6 +131,12 @@ namespace JameGam
                     var msg = (MessageType)reader.ReadUInt16();
                     switch (msg)
                     {
+                        case MessageType.Handshake:
+                            {
+                                _localPlayerNetworkID = reader.ReadInt32();
+                            }
+                            break;
+
                         case MessageType.Connected:
                             {
                                 var id = reader.ReadInt32();
@@ -166,6 +177,27 @@ namespace JameGam
                             }
                             break;
 
+                        case MessageType.Death:
+                            {
+                                var id = reader.ReadInt32();
+
+                                if (id == _localPlayerNetworkID)
+                                {
+                                    _player.Die();
+                                }
+                                else if (!_networkPlayers.ContainsKey(id))
+                                {
+                                    Debug.LogWarning($"Received message for a player not connected: {id}");
+                                }
+                                else if (_networkPlayers[id] == null) // TODO
+                                { } // Player not instanciated yet
+                                else
+                                {
+                                    _networkPlayers[id].SetDeathStatus(true);
+                                }
+                            }
+                            break;
+
                         default:
                             Debug.LogWarning($"Unknown network message {msg}");
                             break;
@@ -185,7 +217,7 @@ namespace JameGam
             using BinaryWriter writer = new(ms);
 
             writer.Write((ushort)MessageType.Death);
-            writer.Write(id ?? -1);
+            writer.Write(id ?? _localPlayerNetworkID);
 
             var data = ms.ToArray();
             _tcp.GetStream().Write(data, 0, data.Length);

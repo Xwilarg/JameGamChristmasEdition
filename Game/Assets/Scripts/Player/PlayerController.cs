@@ -53,6 +53,14 @@ namespace JameGam.Player
             }
         }
 
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.CompareTag("Trap"))
+            {
+                GameManager.Instance.SendDeath(null);
+            }
+        }
+
         public void OnMove(Vector2 val)
         {
             _mov = val;
@@ -153,7 +161,9 @@ namespace JameGam.Player
                             }
                             else
                             {
-                                GameManager.Instance.SendDeath(res[0].GetComponent<NetworkPlayer>().NetworkID);
+                                var np = res[0].GetComponent<NetworkPlayer>();
+                                np.SetDeathStatus(true);
+                                GameManager.Instance.SendDeath(np.NetworkID); 
                             }
                         }
 

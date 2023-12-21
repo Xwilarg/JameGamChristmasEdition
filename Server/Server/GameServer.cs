@@ -155,6 +155,7 @@ namespace Server
                 // Read the handshake
                 var version = reader.ReadUInt16();
                 var name = reader.ReadString();
+                if (name.Length > 20) name = name[..20];
 
                 if (version != ProtocolVersion)
                 {
@@ -173,6 +174,7 @@ namespace Server
 
                 // Send connected to everyone
                 Broadcast(new ConnectedMessage(client.Id, name), client);
+                client.SendMessage(new HandshakeMessage(client.Id));
 
                 // Send all players to the client
                 SendPlayers(client);
@@ -205,9 +207,8 @@ namespace Server
                 case MessageType.Death:
                     {
                         var target = reader.ReadInt32();
-                        if (target == -1) target = client.Id;
 
-                        Broadcast(new DeathMessage(target), null);
+                        Broadcast(new DeathMessage(target), client);
                     }
                     break;
             }
