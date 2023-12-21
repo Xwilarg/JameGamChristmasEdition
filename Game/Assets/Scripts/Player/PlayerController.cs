@@ -19,7 +19,7 @@ namespace JameGam.Player
 
         private CarryType _carry;
 
-        private bool _isDead;
+        public bool IsDead { private set; get; }
 
         private void Awake()
         {
@@ -69,13 +69,13 @@ namespace JameGam.Player
 
         public void Die()
         {
-            _isDead = true;
+            IsDead = true;
             _anim.SetBool("IsDead", true);
         }
 
         public IEnumerator OnAttack()
         {
-            if (_canMove)
+            if (_canMove && !IsDead)
             {
                 var hitPos = (Vector2)transform.position + _lastMov * .2f;
                 if (_carry == CarryType.None)
@@ -84,23 +84,31 @@ namespace JameGam.Player
 
                     yield return new WaitForSeconds(.25f);
 
-                    Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
-
-                    Collider2D[] res = new Collider2D[1];
-                    if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                    if (IsDead)
                     {
-                        Destroy(res[0].gameObject);
+                        _anim.SetBool("IsAttacking", false);
+                        _canMove = true;
+                    }
+                    else
+                    {
                         Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
 
-                        _carry = CarryType.Rock;
-                        _anim.SetInteger("Carrying", 1);
-                        GameManager.Instance.UpdateObjectiveCraft();
+                        Collider2D[] res = new Collider2D[1];
+                        if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                        {
+                            Destroy(res[0].gameObject);
+                            Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+
+                            _carry = CarryType.Rock;
+                            _anim.SetInteger("Carrying", 1);
+                            GameManager.Instance.UpdateObjectiveCraft();
+                        }
+
+                        yield return new WaitForSeconds(.5f);
+
+                        _anim.SetBool("IsAttacking", false);
+                        _canMove = true;
                     }
-
-                    yield return new WaitForSeconds(.5f);
-
-                    _anim.SetBool("IsAttacking", false);
-                    _canMove = true;
                 }
                 else if (_carry == CarryType.Rock)
                 {
@@ -129,16 +137,27 @@ namespace JameGam.Player
 
                     yield return new WaitForSeconds(.25f);
 
-                    Collider2D[] res = new Collider2D[1];
-                    if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Player")) > 0)
+
+                    if (IsDead)
                     {
-                        /* TODO */
+                        _anim.SetBool("IsAttacking", false);
+                        _canMove = true;
+                    }
+                    else
+                    {
+
+                        Collider2D[] res = new Collider2D[1];
+                        if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Player")) > 0)
+                        {
+                            /* TODO */
+                        }
+
+                        yield return new WaitForSeconds(.5f);
+
+                        _anim.SetBool("IsAttacking", false);
+                        _canMove = true;
                     }
 
-                    yield return new WaitForSeconds(.5f);
-
-                    _anim.SetBool("IsAttacking", false);
-                    _canMove = true;
                 }
             }
         }
