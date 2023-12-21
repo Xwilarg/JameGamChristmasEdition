@@ -104,6 +104,11 @@ namespace JameGam
             _objectiveText.font = _killFont;
         }
 
+        public void Quit()
+        {
+            Application.Quit();
+        }
+
         public void ListenIncomingMessages()
         {
             while (Thread.CurrentThread.IsAlive)
