@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace JameGam.Player
 {
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : ACharacter
     {
         [SerializeField]
         private GameObject _hitVfx;
@@ -23,15 +23,12 @@ namespace JameGam.Player
 
         private void Awake()
         {
-            _rb = GetComponent<Rigidbody2D>();
-            _sr = GetComponent<SpriteRenderer>();
-            _anim = GetComponent<Animator>();
+            AwakeParent();
         }
 
         private void Update()
         {
-            var targetPos = transform.position.y;
-            _sr.sortingOrder = (int)(-targetPos * 100f);
+            UpdateParent();
         }
 
         private void FixedUpdate()

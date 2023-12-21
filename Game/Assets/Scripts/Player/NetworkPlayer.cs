@@ -2,13 +2,9 @@
 
 namespace JameGam.Player
 {
-    public class NetworkPlayer : MonoBehaviour
+    public class NetworkPlayer : ACharacter
     {
         public int NetworkID { set; get; }
-
-        private Rigidbody2D _rb;
-        private SpriteRenderer _sr;
-        private Animator _anim;
 
         private Vector2 _pos, _vel;
         private CarryType _carry;
@@ -18,9 +14,7 @@ namespace JameGam.Player
 
         private void Awake()
         {
-            _anim = GetComponent<Animator>();
-            _sr = GetComponent<SpriteRenderer>();
-            _rb = GetComponent<Rigidbody2D>();
+            AwakeParent();
         }
 
         private void Update()
@@ -40,8 +34,7 @@ namespace JameGam.Player
                 _anim.SetBool("IsDead", _isDead);
             }
 
-            var targetPos = transform.position.y;
-            _sr.sortingOrder = (int)(-targetPos * 100f);
+            UpdateParent();
         }
 
         public void SetSpacialInfo(Vector2 pos, Vector2 vel)
