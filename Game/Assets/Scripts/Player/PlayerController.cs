@@ -137,7 +137,6 @@ namespace JameGam.Player
 
                     yield return new WaitForSeconds(.25f);
 
-
                     if (IsDead)
                     {
                         _anim.SetBool("IsAttacking", false);
@@ -145,11 +144,17 @@ namespace JameGam.Player
                     }
                     else
                     {
-
                         Collider2D[] res = new Collider2D[1];
                         if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Player")) > 0)
                         {
-                            /* TODO */
+                            if (res[0].gameObject.GetInstanceID() == gameObject.GetInstanceID())
+                            {
+                                Debug.LogError("Player attempted to hit himself!");
+                            }
+                            else
+                            {
+                                GameManager.Instance.SendDeath(res[0].GetComponent<NetworkPlayer>().NetworkID);
+                            }
                         }
 
                         yield return new WaitForSeconds(.5f);
@@ -157,7 +162,6 @@ namespace JameGam.Player
                         _anim.SetBool("IsAttacking", false);
                         _canMove = true;
                     }
-
                 }
             }
         }

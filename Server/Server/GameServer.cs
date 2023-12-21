@@ -192,12 +192,23 @@ namespace Server
             switch (message)
             {
                 case MessageType.SpacialInfo:
-                    var pos = reader.ReadVector2();
-                    var vel = reader.ReadVector2();
+                    {
+                        var pos = reader.ReadVector2();
+                        var vel = reader.ReadVector2();
 
-                    client.Position = pos;
+                        client.Position = pos;
 
-                    Broadcast(new SpacialMessage(client.Id, pos, vel), client);
+                        Broadcast(new SpacialMessage(client.Id, pos, vel), client);
+                    }
+                    break;
+
+                case MessageType.Death:
+                    {
+                        var target = reader.ReadInt32();
+                        if (target == -1) target = client.Id;
+
+                        Broadcast(new DeathMessage(target), null);
+                    }
                     break;
             }
         }

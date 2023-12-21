@@ -23,6 +23,21 @@ namespace JameGam.Common
         /// <summary>
         /// Sent by the client and server with spacial info about a client 
         /// </summary>
-        SpacialInfo
+        SpacialInfo,
+
+        /// <summary>
+        /// Sent by the client and server when a player die in-game
+        /// </summary>
+        Death,
+
+        /// <summary>
+        /// Sent by the client and server when an attack animation is played
+        /// </summary>
+        AttackAnim,
+
+        /// <summary>
+        /// Sent by the client and server when the item carried in-game by a player change
+        /// </summary>
+        CarryChange,
     }
 }

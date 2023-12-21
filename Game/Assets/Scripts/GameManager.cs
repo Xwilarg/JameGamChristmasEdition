@@ -8,6 +8,7 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.PlayerSettings;
 
 namespace JameGam
 {
@@ -81,6 +82,7 @@ namespace JameGam
                     foreach (var id in _toInstantiate)
                     {
                         var p = Instantiate(_networkPlayerPrefab, Vector2.zero, Quaternion.identity).GetComponent<Player.NetworkPlayer>();
+                        p.NetworkID = id;
                         _networkPlayers[id] = p;
                     }
                     _toInstantiate.Clear();
@@ -175,6 +177,18 @@ namespace JameGam
                 }
                 Thread.Sleep(10);
             }
+        }
+
+        public void SendDeath(int? id)
+        {
+            using MemoryStream ms = new();
+            using BinaryWriter writer = new(ms);
+
+            writer.Write((ushort)MessageType.Death);
+            writer.Write(id ?? -1);
+
+            var data = ms.ToArray();
+            _tcp.GetStream().Write(data, 0, data.Length);
         }
 
         public void SendSpacialInfo(Vector2 pos, Vector2 vel)
