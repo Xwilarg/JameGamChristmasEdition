@@ -17,6 +17,8 @@ namespace JameGam.Player
 
         private bool _canMove = true;
 
+        private CarryType _carry;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
@@ -54,32 +56,79 @@ namespace JameGam.Player
             _mov = val;
         }
 
+        private void SetAttackDir()
+        {
+            _canMove = false;
+            _anim.SetFloat("X", _lastMov.x);
+            _anim.SetFloat("Y", _lastMov.y);
+            _anim.SetBool("IsAttacking", true);
+            _rb.velocity = Vector2.zero;
+        }
+
         public IEnumerator OnAttack()
         {
             if (_canMove)
             {
-                _anim.SetBool("IsAttacking", true);
-                _canMove = false;
-                _anim.SetFloat("X", _lastMov.x);
-                _anim.SetFloat("Y", _lastMov.y);
-                _rb.velocity = Vector2.zero;
-
-                yield return new WaitForSeconds(.25f);
-
                 var hitPos = (Vector2)transform.position + _lastMov * .2f;
-                Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
-
-                Collider2D[] res = new Collider2D[1];
-                if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                if (_carry == CarryType.None)
                 {
-                    Destroy(res[0].gameObject);
+                    SetAttackDir();
+
+                    yield return new WaitForSeconds(.25f);
+
                     Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+
+                    Collider2D[] res = new Collider2D[1];
+                    if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Rock")) > 0)
+                    {
+                        Destroy(res[0].gameObject);
+                        Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+
+                        _carry = CarryType.Rock;
+                    }
+
+                    yield return new WaitForSeconds(.5f);
+
+                    _anim.SetBool("IsAttacking", false);
+                    _canMove = true;
                 }
+                else if (_carry == CarryType.Rock)
+                {
+                    _rb.velocity = Vector2.zero;
 
-                yield return new WaitForSeconds(.5f);
+                    Collider2D[] res = new Collider2D[1];
+                    if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Anvil")) > 0)
+                    {
+                        SetAttackDir();
+                        for (int i = 0; i < 3; i++)
+                        {
+                            Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
+                        }
+                        _carry = CarryType.Sword;
+                        _anim.SetBool("HasSword", true);
+                        yield return new WaitForSeconds(.5f);
 
-                _anim.SetBool("IsAttacking", false);
-                _canMove = true;
+                        _anim.SetBool("IsAttacking", false);
+                        _canMove = true;
+                    }
+                }
+                else if (_carry == CarryType.Sword)
+                {
+                    SetAttackDir();
+
+                    yield return new WaitForSeconds(.25f);
+
+                    Collider2D[] res = new Collider2D[1];
+                    if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Player")) > 0)
+                    {
+                        /* TODO */
+                    }
+
+                    yield return new WaitForSeconds(.5f);
+
+                    _anim.SetBool("IsAttacking", false);
+                    _canMove = true;
+                }
             }
         }
     }
