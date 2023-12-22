@@ -6,7 +6,7 @@ namespace JameGam.Common
     public enum MessageType : ushort
     {
         /// <summary>
-        /// Sent by the client after connecting
+        /// Sent by the client and server after connecting
         /// </summary>
         Handshake,
 
@@ -40,6 +40,9 @@ namespace JameGam.Common
         /// </summary>
         CarryChange,
 
+        /// <summary>
+        /// Sent by the server when a game has ended
+        /// </summary>
         ResetGame
     }
 }
