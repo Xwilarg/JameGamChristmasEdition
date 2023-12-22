@@ -15,7 +15,19 @@ namespace JameGam.Player
 
         private CarryType _carry;
 
-        public bool IsDead { private set; get; }
+        private bool _isDead;
+        public bool IsDead
+        {
+            private set
+            {
+                _isDead = value;
+                if (value)
+                {
+                    GameManager.Instance.UpdateObjectiveDead();
+                }
+            }
+            get => _isDead;
+        }
 
         private bool _needReset;
         private bool _isDirty;

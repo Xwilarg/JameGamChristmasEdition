@@ -94,6 +94,11 @@ namespace JameGam
             }
         }
 
+        public void UpdateObjectiveDead()
+        {
+            _objectiveText.text = "Waiting for game to end...";
+        }
+
         public void ShowGameUI()
         {
             _objectiveUI.SetActive(true);
@@ -207,6 +212,7 @@ namespace JameGam
                                         c.ResetC();
                                     }
                                 }
+                                ShowGameUI();
                             }
                             break;
 
