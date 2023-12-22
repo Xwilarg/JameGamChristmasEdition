@@ -12,7 +12,7 @@ namespace Server
     /// A connected client
     /// </summary>
     /// <param name="socket">The client socket</param>
-    internal class Client(Socket socket)
+    internal class Client(Socket socket, GameServer gameServer)
     {
         /// <summary>
         /// Gets the connected socket
@@ -28,6 +28,11 @@ namespace Server
         /// Gets or sets the state of the client
         /// </summary>
         public ClientState State { get; set; } = ClientState.Connecting;
+
+        /// <summary>
+        /// Gets the game server instance associated with this client
+        /// </summary>
+        public GameServer GameServer { get; } = gameServer;
 
         /// <summary>
         /// Gets or sets the ID of the client
@@ -60,7 +65,15 @@ namespace Server
             Array.Copy(bytes, data, 2);
             Array.Copy(message, 0, data, 2, message.Length);
 
-            Stream.Write(data);
+            try
+            {
+                Stream.Write(data);
+            }
+            catch (IOException)
+            {
+                Console.WriteLine($"Connection dropped with {Id}");
+                GameServer.RemoveClient(this);
+            }
         }
 
         /// <summary>

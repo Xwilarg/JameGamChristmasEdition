@@ -73,7 +73,7 @@ namespace Server
             {
                 // Blocking accept the next client
                 var connection = _listener.AcceptTcpClient();
-                var client = new Client(connection.Client);
+                var client = new Client(connection.Client, this);
 
                 // Add the client
                 lock (_clients) _clients.Add(client);
@@ -245,7 +245,7 @@ namespace Server
         /// Removes a client from the server
         /// </summary>
         /// <param name="client">The client to remove</param>
-        private void RemoveClient(Client client)
+        public void RemoveClient(Client client)
         {
             lock (_clients) _clients.Remove(client);
 
