@@ -8,10 +8,6 @@ namespace JameGam.Player
         [SerializeField]
         private GameObject _hitVfx;
 
-        private Rigidbody2D _rb;
-        private SpriteRenderer _sr;
-        private Animator _anim;
-
         private Vector2 _mov;
         private Vector2 _lastMov = Vector2.up;
 
