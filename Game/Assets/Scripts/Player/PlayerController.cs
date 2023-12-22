@@ -18,6 +18,7 @@ namespace JameGam.Player
         public bool IsDead { private set; get; }
 
         private bool _needReset;
+        private bool _isDirty;
 
         private void Awake()
         {
@@ -28,6 +29,11 @@ namespace JameGam.Player
         private void Update()
         {
             UpdateParent();
+
+            if (_isDirty)
+            {
+                _anim.SetBool("IsDead", IsDead);
+            }
 
             if (_needReset)
             {
@@ -91,7 +97,7 @@ namespace JameGam.Player
         public void Die()
         {
             IsDead = true;
-            _anim.SetBool("IsDead", true);
+            _isDirty = true;
         }
 
         public IEnumerator OnAttack()
