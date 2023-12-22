@@ -62,21 +62,6 @@ namespace Server
             _listener.Stop();
         }
 
-        private void CheckForGameReset()
-        {
-            if (_clients.Count(x => x.IsDead) < 2)
-            {
-                Broadcast(new GameResetMessage());
-                lock (_clients)
-                {
-                    foreach (var c in _clients)
-                    {
-                        c.Reset();
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// Starts accepting clients, this call is blocking
         /// </summary>
@@ -188,9 +173,11 @@ namespace Server
 
                 Console.WriteLine($"{name} joined");
 
+                // Send handshake back with their client ID
+                client.SendMessage(new HandshakeMessage(client.Id));
+
                 // Send connected to everyone
                 Broadcast(new ConnectedMessage(client.Id, name), client);
-                client.SendMessage(new HandshakeMessage(client.Id));
 
                 // Send all players to the client
                 SendPlayers(client);
@@ -225,11 +212,11 @@ namespace Server
                         var target = reader.ReadInt32();
 
                         Broadcast(new DeathMessage(target), client);
-                        var p = _clients.FirstOrDefault(x => x.Id == target);
-                        if (p != null)
-                        {
-                            p.IsDead = true;
-                        }
+
+                        // Set the client as dead
+                        var player = _clients.FirstOrDefault(x => x.Id == target);
+                        if (player != null) player.IsDead = true;
+
                         CheckForGameReset();
                     }
                     break;
@@ -278,6 +265,7 @@ namespace Server
                 // Send disconected to everyone
                 Broadcast(new DisconnectedMessage(client.Id));
             }
+
             CheckForGameReset();
         }
 
@@ -296,6 +284,27 @@ namespace Server
                     // TODO maybe this should be a seperate packet with all clients
                     var message = new ConnectedMessage(c.Id, c.Name);
                     client.SendMessage(message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the game has ended and resets
+        /// </summary>
+        private void CheckForGameReset()
+        {
+            lock (_clients)
+            {
+                if (_clients.Count(x => x.IsDead) < 2)
+                {
+                    // Broadcast the game has ended
+                    Broadcast(new GameResetMessage());
+
+                    // Reset all client states
+                    foreach (var c in _clients)
+                    {
+                        c.Reset();
+                    }
                 }
             }
         }

@@ -49,8 +49,14 @@ namespace Server
         /// </summary>
         public Vector2 Position { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether the client is dead
+        /// </summary>
         public bool IsDead { get; set; } = true;
 
+        /// <summary>
+        /// Resets the client
+        /// </summary>
         public void Reset()
         {
             IsDead = false;
