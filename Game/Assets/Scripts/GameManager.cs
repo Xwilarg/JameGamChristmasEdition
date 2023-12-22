@@ -38,10 +38,12 @@ namespace JameGam
 
         private int _localPlayerNetworkID = -1;
 
-        public bool Connect(string ip, int port)
+        public bool Connect(string ip, int port, string name)
         {
             try
             {
+                if (name.Length > 20) name = name[..20];
+
                 _tcp = new TcpClient();
                 _tcp.Connect(ip, port);
 
@@ -50,7 +52,7 @@ namespace JameGam
 
                 writer.Write((ushort)MessageType.Handshake);
                 writer.Write((ushort)1);
-                writer.Write("Player");
+                writer.Write(name);
 
                 var data = ms.ToArray();
                 _tcp.GetStream().Write(data, 0, data.Length);
