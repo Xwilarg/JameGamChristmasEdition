@@ -36,7 +36,7 @@ namespace JameGam.Common
         AttackAnim,
 
         /// <summary>
-        /// Sent by the client and server when the item carried in-game by a player change
+        /// Sent by the client and server when the item carried in-game by a player changes
         /// </summary>
         CarryChange,
 

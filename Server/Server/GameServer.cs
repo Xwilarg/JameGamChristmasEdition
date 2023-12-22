@@ -220,6 +220,18 @@ namespace Server
                         CheckForGameReset();
                     }
                     break;
+
+                case MessageType.AttackAnim:
+                    {
+                        Broadcast(new AttackMessage(), client);
+                    }
+                    break;
+
+                case MessageType.CarryChange:
+                    {
+                        Broadcast(new CarryChangeMessage(), client);
+                    }
+                    break;
             }
         }
 
