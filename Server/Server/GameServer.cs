@@ -124,14 +124,9 @@ namespace Server
                     {
                         HandleIncomingData(client);
                     }
-                    catch (EndOfStreamException)
+                    catch (Exception ex) when (ex is EndOfStreamException || ex is IOException)
                     {
                         Console.WriteLine($"Connection dropped with {client.Id}");
-                        RemoveClient(client);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
                         RemoveClient(client);
                     }
                 }

@@ -19,7 +19,7 @@ namespace Server.Util
         }
 
         /// <summary>
-        /// Writes a <see cref="Vector3"/> to the stream 
+        /// Writes a <see cref="Vector2"/> to the stream 
         /// </summary>
         /// <param name="writer">The writer</param>
         /// <param name="vector">The vector</param>
