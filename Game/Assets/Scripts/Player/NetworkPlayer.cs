@@ -37,6 +37,14 @@ namespace JameGam.Player
             UpdateParent();
         }
 
+        public override void ResetC()
+        {
+            _pos = Vector2.zero;
+            _carry = CarryType.None;
+            _isDead = false;
+            _isDirty = true;
+        }
+
         public void SetSpacialInfo(Vector2 pos, Vector2 vel)
         {
             _pos = pos;

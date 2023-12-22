@@ -62,6 +62,21 @@ namespace Server
             _listener.Stop();
         }
 
+        private void CheckForGameReset()
+        {
+            if (_clients.Count(x => x.IsDead) < 2)
+            {
+                Broadcast(new GameResetMessage());
+                lock (_clients)
+                {
+                    foreach (var c in _clients)
+                    {
+                        c.Reset();
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Starts accepting clients, this call is blocking
         /// </summary>
@@ -79,6 +94,7 @@ namespace Server
                 lock (_clients) _clients.Add(client);
 
                 Console.WriteLine("New incoming connection");
+                CheckForGameReset();
             }
         }
 
@@ -111,6 +127,11 @@ namespace Server
                     catch (EndOfStreamException)
                     {
                         Console.WriteLine($"Connection dropped with {client.Id}");
+                        RemoveClient(client);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
                         RemoveClient(client);
                     }
                 }
@@ -209,6 +230,12 @@ namespace Server
                         var target = reader.ReadInt32();
 
                         Broadcast(new DeathMessage(target), client);
+                        var p = _clients.FirstOrDefault(x => x.Id == target);
+                        if (p != null)
+                        {
+                            p.IsDead = true;
+                        }
+                        CheckForGameReset();
                     }
                     break;
             }
@@ -256,6 +283,7 @@ namespace Server
                 // Send disconected to everyone
                 Broadcast(new DisconnectedMessage(client.Id));
             }
+            CheckForGameReset();
         }
 
         /// <summary>

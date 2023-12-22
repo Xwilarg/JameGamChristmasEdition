@@ -197,6 +197,19 @@ namespace JameGam
                             }
                             break;
 
+                        case MessageType.ResetGame:
+                            {
+                                _player.ResetC();
+                                lock (_networkPlayers)
+                                {
+                                    foreach (var c in _networkPlayers.Values)
+                                    {
+                                        c.ResetC();
+                                    }
+                                }
+                            }
+                            break;
+
                         default:
                             Debug.LogWarning($"Unknown network message {msg}");
                             break;

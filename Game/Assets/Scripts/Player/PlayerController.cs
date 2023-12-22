@@ -17,14 +17,28 @@ namespace JameGam.Player
 
         public bool IsDead { private set; get; }
 
+        private bool _needReset;
+
         private void Awake()
         {
             AwakeParent();
+            IsDead = true;
         }
 
         private void Update()
         {
             UpdateParent();
+
+            if (_needReset)
+            {
+                _needReset = false;
+                IsDead = false;
+                _carry = CarryType.None;
+                transform.position = Vector2.zero;
+                _canMove = true;
+                _anim.SetBool("IsAttacking", false);
+                _anim.SetInteger("Carrying", 0);
+            }
         }
 
         private void FixedUpdate()
@@ -53,6 +67,11 @@ namespace JameGam.Player
                 Die();
                 GameManager.Instance.SendDeath(null);
             }
+        }
+
+        public override void ResetC()
+        {
+            _needReset = true;
         }
 
         public void OnMove(Vector2 val)

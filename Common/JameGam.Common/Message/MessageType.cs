@@ -39,5 +39,7 @@ namespace JameGam.Common
         /// Sent by the client and server when the item carried in-game by a player change
         /// </summary>
         CarryChange,
+
+        ResetGame
     }
 }

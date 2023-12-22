@@ -21,5 +21,7 @@ namespace JameGam.Player
             var targetPos = transform.position.y;
             _sr.sortingOrder = (int)(-targetPos * 100f);
         }
+
+        public abstract void ResetC();
     }
 }
