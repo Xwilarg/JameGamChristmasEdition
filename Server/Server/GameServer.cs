@@ -296,8 +296,9 @@ namespace Server
         {
             lock (_clients)
             {
-                foreach (var c in _clients)
+                for (int i = _clients.Count - 1; i >= 0; i--)
                 {
+                    var c = _clients[i];
                     if (c.State == ClientState.Connecting || c == client) continue;
 
                     // TODO maybe this should be a seperate packet with all clients
