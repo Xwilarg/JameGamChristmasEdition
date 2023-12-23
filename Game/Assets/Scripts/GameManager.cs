@@ -144,149 +144,152 @@ namespace JameGam
                     using MemoryStream ms = new(buffer);
                     using BinaryReader reader = new(ms);
 
-                    var msg = (MessageType)reader.ReadUInt16();
-                    switch (msg)
+                    while (reader.PeekChar() != -1)
                     {
-                        case MessageType.Handshake:
-                            {
-                                _localPlayerNetworkID = reader.ReadInt32();
-                            }
-                            break;
-
-                        case MessageType.Connected:
-                            {
-                                var id = reader.ReadInt32();
-
-                                if (_networkPlayers.ContainsKey(id))
+                        var msg = (MessageType)reader.ReadUInt16();
+                        switch (msg)
+                        {
+                            case MessageType.Handshake:
                                 {
-                                    Debug.LogWarning($"Received connection message for a player already connected: {id}");
+                                    _localPlayerNetworkID = reader.ReadInt32();
                                 }
-                                else
+                                break;
+
+                            case MessageType.Connected:
                                 {
-                                    _networkPlayers.Add(id, null);
-                                    lock (_toInstantiate)
+                                    var id = reader.ReadInt32();
+
+                                    if (_networkPlayers.ContainsKey(id))
                                     {
-                                        _toInstantiate.Add((id, reader.ReadString()));
+                                        Debug.LogWarning($"Received connection message for a player already connected: {id}");
                                     }
-                                    Debug.LogWarning($"New player registered with ID {id}");
-                                }
-                            }
-                            break;
-
-                        case MessageType.SpacialInfo:
-                            {
-                                var id = reader.ReadInt32();
-
-                                if (!_networkPlayers.ContainsKey(id))
-                                {
-                                    Debug.LogWarning($"Received message for a player not connected: {id}");
-                                }
-                                else if (_networkPlayers[id] == null)
-                                { } // Player not instanciated yet
-                                else
-                                {
-                                    var pos = new Vector2(reader.ReadSingle(), reader.ReadSingle());
-                                    var vel = new Vector2(reader.ReadSingle(), reader.ReadSingle());
-
-                                    _networkPlayers[id].SetSpacialInfo(pos, vel);
-                                }
-                            }
-                            break;
-
-                        case MessageType.Death:
-                            {
-                                var id = reader.ReadInt32();
-
-                                if (id == _localPlayerNetworkID)
-                                {
-                                    _player.Die();
-                                }
-                                else if (!_networkPlayers.ContainsKey(id))
-                                {
-                                    Debug.LogWarning($"Received message for a player not connected: {id}");
-                                }
-                                else if (_networkPlayers[id] == null) // TODO
-                                { } // Player not instanciated yet
-                                else
-                                {
-                                    _networkPlayers[id].SetDeathStatus(true);
-                                }
-                            }
-                            break;
-
-                        case MessageType.ResetGame:
-                            {
-                                _player?.ResetC();
-                                lock (_networkPlayers)
-                                {
-                                    foreach (var c in _networkPlayers.Values)
+                                    else
                                     {
-                                        c.ResetC();
+                                        _networkPlayers.Add(id, null);
+                                        lock (_toInstantiate)
+                                        {
+                                            _toInstantiate.Add((id, reader.ReadString()));
+                                        }
+                                        Debug.LogWarning($"New player registered with ID {id}");
                                     }
                                 }
-                                _awaitingUIReset = true;
-                            }
-                            break;
+                                break;
 
-                        case MessageType.CarryChange:
-                            {
-                                var id = reader.ReadInt32();
+                            case MessageType.SpacialInfo:
+                                {
+                                    var id = reader.ReadInt32();
 
-                                if (!_networkPlayers.ContainsKey(id))
-                                {
-                                    Debug.LogWarning($"Received message for a player not connected: {id}");
-                                }
-                                else if (_networkPlayers[id] == null)
-                                { } // Player not instanciated yet
-                                else
-                                {
-                                    _networkPlayers[id].SetCarry((CarryType)reader.ReadInt16());
-                                }
-                            }
-                            break;
+                                    if (!_networkPlayers.ContainsKey(id))
+                                    {
+                                        Debug.LogWarning($"Received message for a player not connected: {id}");
+                                    }
+                                    else if (_networkPlayers[id] == null)
+                                    { } // Player not instanciated yet
+                                    else
+                                    {
+                                        var pos = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                                        var vel = new Vector2(reader.ReadSingle(), reader.ReadSingle());
 
-                        case MessageType.AttackAnim:
-                            {
-                                var id = reader.ReadInt32();
+                                        _networkPlayers[id].SetSpacialInfo(pos, vel);
+                                    }
+                                }
+                                break;
 
-                                if (!_networkPlayers.ContainsKey(id))
+                            case MessageType.Death:
                                 {
-                                    Debug.LogWarning($"Received message for a player not connected: {id}");
-                                }
-                                else if (_networkPlayers[id] == null)
-                                { } // Player not instanciated yet
-                                else
-                                {
-                                    _networkPlayers[id].SetAttackAnim();
-                                }
-                            }
-                            break;
+                                    var id = reader.ReadInt32();
 
-                        case MessageType.Stunned:
-                            {
-                                var id = reader.ReadInt32();
-                                var dir = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                                    if (id == _localPlayerNetworkID)
+                                    {
+                                        _player.Die();
+                                    }
+                                    else if (!_networkPlayers.ContainsKey(id))
+                                    {
+                                        Debug.LogWarning($"Received message for a player not connected: {id}");
+                                    }
+                                    else if (_networkPlayers[id] == null) // TODO
+                                    { } // Player not instanciated yet
+                                    else
+                                    {
+                                        _networkPlayers[id].SetDeathStatus(true);
+                                    }
+                                }
+                                break;
 
-                                if (id == _localPlayerNetworkID)
+                            case MessageType.ResetGame:
                                 {
-                                    _player.Die();
+                                    _player?.ResetC();
+                                    lock (_networkPlayers)
+                                    {
+                                        foreach (var c in _networkPlayers.Values)
+                                        {
+                                            c.ResetC();
+                                        }
+                                    }
+                                    _awaitingUIReset = true;
                                 }
-                                else if (!_networkPlayers.ContainsKey(id))
-                                {
-                                    Debug.LogWarning($"Received message for a player not connected: {id}");
-                                }
-                                else if (_networkPlayers[id] == null)
-                                { } // Player not instanciated yet
-                                else
-                                {
-                                    _networkPlayers[id].SetStun();
-                                }
-                            }
-                            break;
+                                break;
 
-                        default:
-                            Debug.LogWarning($"Unknown network message {msg}");
-                            break;
+                            case MessageType.CarryChange:
+                                {
+                                    var id = reader.ReadInt32();
+
+                                    if (!_networkPlayers.ContainsKey(id))
+                                    {
+                                        Debug.LogWarning($"Received message for a player not connected: {id}");
+                                    }
+                                    else if (_networkPlayers[id] == null)
+                                    { } // Player not instanciated yet
+                                    else
+                                    {
+                                        _networkPlayers[id].SetCarry((CarryType)reader.ReadInt16());
+                                    }
+                                }
+                                break;
+
+                            case MessageType.AttackAnim:
+                                {
+                                    var id = reader.ReadInt32();
+
+                                    if (!_networkPlayers.ContainsKey(id))
+                                    {
+                                        Debug.LogWarning($"Received message for a player not connected: {id}");
+                                    }
+                                    else if (_networkPlayers[id] == null)
+                                    { } // Player not instanciated yet
+                                    else
+                                    {
+                                        _networkPlayers[id].SetAttackAnim();
+                                    }
+                                }
+                                break;
+
+                            case MessageType.Stunned:
+                                {
+                                    var id = reader.ReadInt32();
+                                    var dir = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+
+                                    if (id == _localPlayerNetworkID)
+                                    {
+                                        _player.Die();
+                                    }
+                                    else if (!_networkPlayers.ContainsKey(id))
+                                    {
+                                        Debug.LogWarning($"Received message for a player not connected: {id}");
+                                    }
+                                    else if (_networkPlayers[id] == null)
+                                    { } // Player not instanciated yet
+                                    else
+                                    {
+                                        _networkPlayers[id].SetStun();
+                                    }
+                                }
+                                break;
+
+                            default:
+                                Debug.LogWarning($"Unknown network message {msg}");
+                                break;
+                        }
                     }
                 }
                 catch (Exception e)
