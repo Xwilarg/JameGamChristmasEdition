@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AIPlayer Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2886066792338492228, guid: e164602bd20a9d04db35420b07bee77a, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4122003098081892204, guid: e164602bd20a9d04db35420b07bee77a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.5

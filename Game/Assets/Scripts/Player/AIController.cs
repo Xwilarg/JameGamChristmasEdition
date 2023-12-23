@@ -17,6 +17,11 @@ namespace Assets.Scripts.Player
             AwakeParent();
         }
 
+        private void Update()
+        {
+            UpdateParent();
+        }
+
         public override void ResetC()
         { }
 

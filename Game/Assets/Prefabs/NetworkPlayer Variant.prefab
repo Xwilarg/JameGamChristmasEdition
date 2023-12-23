@@ -183,6 +183,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NetworkPlayer Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 906224687711057722, guid: f9d62158e4d281e4b908f267e29600d4, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2137691413799562002, guid: f9d62158e4d281e4b908f267e29600d4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

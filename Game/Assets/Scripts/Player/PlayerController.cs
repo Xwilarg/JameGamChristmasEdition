@@ -146,8 +146,6 @@ namespace JameGam.Player
                 {
                     SetAttackDir();
 
-                    yield return new WaitForSeconds(.25f);
-
                     if (IsDead)
                     {
                         _anim.SetBool("IsAttacking", false);
@@ -155,6 +153,8 @@ namespace JameGam.Player
                     }
                     else
                     {
+                        yield return new WaitForSeconds(.25f);
+
                         Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
 
                         Collider2D[] res = new Collider2D[1];
@@ -203,18 +203,16 @@ namespace JameGam.Player
                         _carry = CarryType.Sword;
                         GameManager.Instance.SendCarry(CarryType.Sword);
                         GameManager.Instance.UpdateObjectiveSword();
-                        _anim.SetInteger("Carrying", 2);
                         yield return new WaitForSeconds(.5f);
-
                         _anim.SetBool("IsAttacking", false);
+                        _anim.SetInteger("Carrying", 2);
+
                         _canMove = true;
                     }
                 }
                 else if (_carry == CarryType.Sword)
                 {
                     SetAttackDir();
-
-                    yield return new WaitForSeconds(.25f);
 
                     if (IsDead)
                     {
@@ -223,6 +221,8 @@ namespace JameGam.Player
                     }
                     else
                     {
+                        yield return new WaitForSeconds(.4f);
+
                         Collider2D[] res = new Collider2D[1];
                         if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Player")) > 0)
                         {
@@ -238,7 +238,7 @@ namespace JameGam.Player
                             }
                         }
 
-                        yield return new WaitForSeconds(.5f);
+                        yield return new WaitForSeconds(.35f);
 
                         _anim.SetBool("IsAttacking", false);
                         _canMove = true;
