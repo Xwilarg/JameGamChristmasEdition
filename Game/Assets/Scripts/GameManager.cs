@@ -32,7 +32,7 @@ namespace JameGam
         private TcpClient _tcp;
 
         private readonly Dictionary<int, Player.NetworkPlayer> _networkPlayers = new();
-        private readonly List<int> _toInstantiate = new();
+        private readonly List<(int, string)> _toInstantiate = new();
 
         private Thread _networkThread;
 
@@ -79,11 +79,12 @@ namespace JameGam
             {
                 lock(_toInstantiate)
                 {
-                    foreach (var id in _toInstantiate)
+                    foreach (var e in _toInstantiate)
                     {
                         var p = Instantiate(_networkPlayerPrefab, Vector2.zero, Quaternion.identity).GetComponent<Player.NetworkPlayer>();
-                        p.NetworkID = id;
-                        _networkPlayers[id] = p;
+                        p.GetComponentInChildren<TMP_Text>().text = e.Item2;
+                        p.NetworkID = e.Item1;
+                        _networkPlayers[e.Item1] = p;
                     }
                     _toInstantiate.Clear();
                 }
@@ -156,7 +157,7 @@ namespace JameGam
                                     _networkPlayers.Add(id, null);
                                     lock (_toInstantiate)
                                     {
-                                        _toInstantiate.Add(id);
+                                        _toInstantiate.Add((id, reader.ReadString()));
                                     }
                                     Debug.LogWarning($"New player registered with ID {id}");
                                 }
