@@ -5,7 +5,9 @@ namespace JameGam.Player
 {
     public class NetworkPlayer : ACharacter
     {
-        public int NetworkID { set; get; }
+        public int NetID { set; get; }
+
+        public override int NetworkID => NetID;
 
         private Vector2 _pos, _vel;
         private CarryType _carry;
@@ -47,7 +49,7 @@ namespace JameGam.Player
             if (_awaitingStun)
             {
                 _awaitingStun = false;
-                StartCoroutine(Stun());
+                StartCoroutine(StunEnumerator());
             }
 
             UpdateParent();
@@ -60,7 +62,7 @@ namespace JameGam.Player
             _anim.SetBool("IsAttacking", false);
         }
 
-        private IEnumerator Stun()
+        private IEnumerator StunEnumerator()
         {
             _anim.SetBool("IsStunned", true);
             yield return new WaitForSeconds(1f);
@@ -87,20 +89,20 @@ namespace JameGam.Player
             _isDirty = true;
         }
 
-        public void SetDeathStatus(bool status)
-        {
-            _isDead = status;
-            _isDirty = true;
-        }
-
         public void SetAttackAnim()
         {
             _awaitingAttack = true;
         }
 
-        public void SetStun()
+        public override void SetStun(Vector2 _)
         {
             _awaitingStun = true;
+        }
+
+        public override void SetDeathStatus(bool value)
+        {
+            _isDead = value;
+            _isDirty = true;
         }
     }
 }

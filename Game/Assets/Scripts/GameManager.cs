@@ -9,6 +9,7 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace JameGam
 {
@@ -28,6 +29,9 @@ namespace JameGam
         [SerializeField]
         private TMP_FontAsset _killFont;
 
+        [SerializeField]
+        private GameObject _menu;
+
         private PlayerController _player;
 
         private TcpClient _tcp;
@@ -40,6 +44,20 @@ namespace JameGam
         private int _localPlayerNetworkID = -1;
 
         private bool _awaitingUIReset;
+
+        private bool _isSolo;
+        public bool IsSolo => _isSolo;
+
+        public void PlaySolo()
+        {
+            _isSolo = true;
+
+            SceneManager.LoadScene("Solo", LoadSceneMode.Additive);
+            _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
+
+            ShowGameUI();
+            _menu.SetActive(false);
+        }
 
         public bool Connect(string ip, int port, string name)
         {
@@ -64,7 +82,7 @@ namespace JameGam
                 _networkThread.Start();
                 return true;
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogException(e);
             }
@@ -86,7 +104,7 @@ namespace JameGam
                     {
                         var p = Instantiate(_networkPlayerPrefab, Vector2.zero, Quaternion.identity).GetComponent<Player.NetworkPlayer>();
                         p.GetComponentInChildren<TMP_Text>().text = e.Item2;
-                        p.NetworkID = e.Item1;
+                        p.NetID = e.Item1;
                         _networkPlayers[e.Item1] = p;
                     }
                     _toInstantiate.Clear();
@@ -108,7 +126,8 @@ namespace JameGam
 
         public void UpdateObjectiveDead()
         {
-            _objectiveText.text = "Waiting for game to end...";
+            if (_isSolo) _objectiveText.text = "You lost";
+            else _objectiveText.text = "Waiting for game to end...";
         }
 
         public void ShowGameUI()
@@ -201,7 +220,7 @@ namespace JameGam
 
                                     if (id == _localPlayerNetworkID)
                                     {
-                                        _player.Die();
+                                        _player.SetDeathStatus(true);
                                     }
                                     else if (!_networkPlayers.ContainsKey(id))
                                     {
@@ -271,7 +290,7 @@ namespace JameGam
 
                                     if (id == _localPlayerNetworkID)
                                     {
-                                        _player.Die();
+                                        _player.SetStun(dir);
                                     }
                                     else if (!_networkPlayers.ContainsKey(id))
                                     {
@@ -281,7 +300,7 @@ namespace JameGam
                                     { } // Player not instanciated yet
                                     else
                                     {
-                                        _networkPlayers[id].SetStun();
+                                        _networkPlayers[id].SetStun(Vector2.zero);
                                     }
                                 }
                                 break;
@@ -302,6 +321,8 @@ namespace JameGam
 
         public void SendDeath(int? id)
         {
+            if (_isSolo) return;
+
             using MemoryStream ms = new();
             using BinaryWriter writer = new(ms);
 
@@ -314,6 +335,8 @@ namespace JameGam
 
         public void SendCarry(CarryType carry)
         {
+            if (_isSolo) return;
+
             using MemoryStream ms = new();
             using BinaryWriter writer = new(ms);
 
@@ -326,6 +349,8 @@ namespace JameGam
 
         public void SendStun(int id, Vector2 dir)
         {
+            if (_isSolo) return;
+
             using MemoryStream ms = new();
             using BinaryWriter writer = new(ms);
 
@@ -340,6 +365,8 @@ namespace JameGam
 
         public void SendAttack()
         {
+            if (_isSolo) return;
+
             using MemoryStream ms = new();
             using BinaryWriter writer = new(ms);
 
@@ -351,6 +378,8 @@ namespace JameGam
 
         public void SendSpacialInfo(Vector2 pos, Vector2 vel)
         {
+            if (_isSolo) return;
+
             using MemoryStream ms = new();
             using BinaryWriter writer = new(ms);
 
@@ -382,6 +411,7 @@ namespace JameGam
 
         private void OnDestroy()
         {
+            if (_isSolo) return;
             _networkThread.Abort();
             if (_tcp.Connected)
             {

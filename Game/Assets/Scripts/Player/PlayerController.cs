@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Player;
+using System.Collections;
 using UnityEngine;
 
 namespace JameGam.Player
@@ -36,7 +37,7 @@ namespace JameGam.Player
         private void Awake()
         {
             AwakeParent();
-            IsDead = true;
+            IsDead = !GameManager.Instance.IsSolo;
         }
 
         private void Update()
@@ -87,7 +88,7 @@ namespace JameGam.Player
         {
             if (collision.CompareTag("Trap"))
             {
-                Die();
+                SetDeathStatus(true);
                 GameManager.Instance.SendDeath(null);
             }
         }
@@ -112,13 +113,17 @@ namespace JameGam.Player
             GameManager.Instance.SendAttack();
         }
 
-        public void Die()
+        public override void SetDeathStatus(bool value) // Must be true
         {
             IsDead = true;
             _isDirty = true;
         }
 
-        public IEnumerator OnStun(Vector2 dir)
+        public override void SetStun(Vector2 dir)
+        {
+            StartCoroutine(SetStunEnumerator(dir));
+        }
+        private IEnumerator SetStunEnumerator(Vector2 dir)
         {
             _canMove = false;
             _anim.SetBool("IsStunned", true);
@@ -136,7 +141,7 @@ namespace JameGam.Player
         {
             if (_canMove && !IsDead)
             {
-                var hitPos = (Vector2)transform.position + _lastMov * .2f;
+                var hitPos = (Vector2)transform.position + _lastMov * .3f;
                 if (_carry == CarryType.None)
                 {
                     SetAttackDir();
@@ -171,8 +176,8 @@ namespace JameGam.Player
                             }
                             else
                             {
-                                var np = res[0].GetComponent<NetworkPlayer>();
-                                np.SetStun();
+                                var np = (ACharacter)res[0].GetComponent<NetworkPlayer>() ?? res[0].GetComponent<AIController>();
+                                np.SetStun(_lastMov);
                                 GameManager.Instance.SendStun(np.NetworkID, _lastMov);
                             }
                         }
@@ -227,7 +232,7 @@ namespace JameGam.Player
                             }
                             else
                             {
-                                var np = res[0].GetComponent<NetworkPlayer>();
+                                var np = (ACharacter)res[0].GetComponent<NetworkPlayer>() ?? res[0].GetComponent<AIController>();
                                 np.SetDeathStatus(true);
                                 GameManager.Instance.SendDeath(np.NetworkID); 
                             }
@@ -241,5 +246,7 @@ namespace JameGam.Player
                 }
             }
         }
+
+        public override int NetworkID => -1;
     }
 }

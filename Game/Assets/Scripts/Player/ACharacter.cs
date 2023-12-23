@@ -9,6 +9,8 @@ namespace JameGam.Player
         protected SpriteRenderer _sr;
         protected Animator _anim;
 
+        public abstract int NetworkID { get; }
+
         protected void AwakeParent()
         {
             _anim = GetComponent<Animator>();
@@ -23,5 +25,8 @@ namespace JameGam.Player
         }
 
         public abstract void ResetC();
+
+        public abstract void SetStun(Vector2 dir);
+        public abstract void SetDeathStatus(bool value);
     }
 }
