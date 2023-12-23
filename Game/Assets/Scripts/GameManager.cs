@@ -10,6 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using static Unity.VisualScripting.Member;
 
 namespace JameGam
 {
@@ -31,6 +32,9 @@ namespace JameGam
 
         [SerializeField]
         private GameObject _menu;
+
+        [SerializeField]
+        private AudioSource _source;
 
         private PlayerController _player;
 
@@ -55,6 +59,7 @@ namespace JameGam
             SceneManager.LoadScene("Solo", LoadSceneMode.Additive);
             _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
 
+            _source.Play();
             ShowGameUI();
             _menu.SetActive(false);
         }
@@ -80,6 +85,9 @@ namespace JameGam
 
                 _networkThread = new Thread(new ThreadStart(ListenIncomingMessages));
                 _networkThread.Start();
+
+                _source.Play();
+
                 return true;
             }
             catch (Exception e)
