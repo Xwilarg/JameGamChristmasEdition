@@ -216,7 +216,7 @@ namespace JameGam
 
                         case MessageType.ResetGame:
                             {
-                                _player.ResetC();
+                                _player?.ResetC();
                                 lock (_networkPlayers)
                                 {
                                     foreach (var c in _networkPlayers.Values)
