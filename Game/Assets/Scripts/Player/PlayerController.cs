@@ -139,6 +139,7 @@ namespace JameGam.Player
                             Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
 
                             _carry = CarryType.Rock;
+                            GameManager.Instance.SendCarry(CarryType.Rock);
                             _anim.SetInteger("Carrying", 1);
                             GameManager.Instance.UpdateObjectiveCraft();
                         }
@@ -162,6 +163,7 @@ namespace JameGam.Player
                             Destroy(Instantiate(_hitVfx, hitPos, Quaternion.identity), .5f);
                         }
                         _carry = CarryType.Sword;
+                        GameManager.Instance.SendCarry(CarryType.Sword);
                         GameManager.Instance.UpdateObjectiveSword();
                         _anim.SetInteger("Carrying", 2);
                         yield return new WaitForSeconds(.5f);

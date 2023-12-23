@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace JameGam.Player
 {
@@ -11,6 +12,8 @@ namespace JameGam.Player
 
         private bool _isDirty;
         private bool _isDead;
+
+        private bool _awaitingAttack;
 
         private void Awake()
         {
@@ -34,7 +37,20 @@ namespace JameGam.Player
                 _anim.SetBool("IsDead", _isDead);
             }
 
+            if (_awaitingAttack)
+            {
+                _awaitingAttack = false;
+                StartCoroutine(Attack());
+            }
+
             UpdateParent();
+        }
+
+        private IEnumerator Attack()
+        {
+            _anim.SetBool("IsAttacking", true);
+            yield return new WaitForSeconds(.75f);
+            _anim.SetBool("IsAttacking", false);
         }
 
         public override void ResetC()
@@ -61,6 +77,11 @@ namespace JameGam.Player
         {
             _isDead = status;
             _isDirty = true;
+        }
+
+        public void SetAttackAnim()
+        {
+            _awaitingAttack = true;
         }
     }
 }

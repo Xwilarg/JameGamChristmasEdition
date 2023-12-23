@@ -223,13 +223,14 @@ namespace Server
 
                 case MessageType.AttackAnim:
                     {
-                        Broadcast(new AttackMessage(), client);
+                        Broadcast(new AttackMessage(client.Id), client);
                     }
                     break;
 
                 case MessageType.CarryChange:
                     {
-                        Broadcast(new CarryChangeMessage(), client);
+                        var carry = reader.ReadInt16();
+                        Broadcast(new CarryChangeMessage(client.Id, carry), client);
                     }
                     break;
             }

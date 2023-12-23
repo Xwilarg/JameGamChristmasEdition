@@ -1,5 +1,6 @@
 using JameGam.Common;
 using JameGam.Player;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -219,6 +220,23 @@ namespace JameGam
                             }
                             break;
 
+                        case MessageType.CarryChange:
+                            {
+                                var id = reader.ReadInt32();
+
+                                if (!_networkPlayers.ContainsKey(id))
+                                {
+                                    Debug.LogWarning($"Received message for a player not connected: {id}");
+                                }
+                                else if (_networkPlayers[id] == null)
+                                { } // Player not instanciated yet
+                                else
+                                {
+                                    _networkPlayers[id].SetCarry((CarryType)reader.ReadInt16());
+                                }
+                            }
+                            break;
+
                         default:
                             Debug.LogWarning($"Unknown network message {msg}");
                             break;
@@ -239,6 +257,29 @@ namespace JameGam
 
             writer.Write((ushort)MessageType.Death);
             writer.Write(id ?? _localPlayerNetworkID);
+
+            var data = ms.ToArray();
+            _tcp.GetStream().Write(data, 0, data.Length);
+        }
+
+        public void SendCarry(CarryType carry)
+        {
+            using MemoryStream ms = new();
+            using BinaryWriter writer = new(ms);
+
+            writer.Write((ushort)MessageType.CarryChange);
+            writer.Write((short)carry);
+
+            var data = ms.ToArray();
+            _tcp.GetStream().Write(data, 0, data.Length);
+        }
+
+        public void SendAttack()
+        {
+            using MemoryStream ms = new();
+            using BinaryWriter writer = new(ms);
+
+            writer.Write((ushort)MessageType.AttackAnim);
 
             var data = ms.ToArray();
             _tcp.GetStream().Write(data, 0, data.Length);
