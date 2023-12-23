@@ -39,6 +39,8 @@ namespace JameGam
 
         private int _localPlayerNetworkID = -1;
 
+        private bool _awaitingUIReset;
+
         public bool Connect(string ip, int port, string name)
         {
             try
@@ -94,6 +96,12 @@ namespace JameGam
             if (_player == null && _localPlayerNetworkID != -1)
             {
                 _player = Instantiate(_playerPrefab, Vector2.zero, Quaternion.identity).GetComponent<PlayerController>();
+                ShowGameUI();
+            }
+
+            if (_awaitingUIReset)
+            {
+                _awaitingUIReset = false;
                 ShowGameUI();
             }
         }
@@ -216,7 +224,7 @@ namespace JameGam
                                         c.ResetC();
                                     }
                                 }
-                                ShowGameUI();
+                                _awaitingUIReset = true;
                             }
                             break;
 
