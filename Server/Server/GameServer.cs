@@ -233,6 +233,12 @@ namespace Server
                         Broadcast(new CarryChangeMessage(client.Id, carry), client);
                     }
                     break;
+
+                case MessageType.Stunned:
+                    {
+                        Broadcast(new StunnedMessage(client.Id, reader.ReadVector2()), client);
+                    }
+                    break;
             }
         }
 

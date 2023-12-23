@@ -31,6 +31,7 @@ namespace JameGam.Player
 
         private bool _needReset;
         private bool _isDirty;
+        private bool _isStunned;
 
         private void Awake()
         {
@@ -61,7 +62,11 @@ namespace JameGam.Player
 
         private void FixedUpdate()
         {
-            Vector2 mov = _canMove ? _mov : Vector2.zero;
+            Vector2 mov;
+
+            if (_canMove) mov = _mov;
+            else if (_isStunned) mov = _rb.velocity;
+            else mov = Vector2.zero;
 
             _rb.velocity = mov;
             GameManager.Instance.SendSpacialInfo(transform.position, mov);
@@ -104,12 +109,27 @@ namespace JameGam.Player
             _anim.SetFloat("Y", _lastMov.y);
             _anim.SetBool("IsAttacking", true);
             _rb.velocity = Vector2.zero;
+            GameManager.Instance.SendAttack();
         }
 
         public void Die()
         {
             IsDead = true;
             _isDirty = true;
+        }
+
+        public IEnumerator OnStun(Vector2 dir)
+        {
+            _canMove = false;
+            _anim.SetBool("IsStunned", true);
+            _isStunned = true;
+            _rb.velocity = dir;
+
+            yield return new WaitForSeconds(1f);
+
+            _canMove = true;
+            _anim.SetBool("IsStunned", true);
+            _isStunned = false;
         }
 
         public IEnumerator OnAttack()
@@ -142,6 +162,19 @@ namespace JameGam.Player
                             GameManager.Instance.SendCarry(CarryType.Rock);
                             _anim.SetInteger("Carrying", 1);
                             GameManager.Instance.UpdateObjectiveCraft();
+                        }
+                        if (Physics2D.OverlapCircleNonAlloc(hitPos, .2f, res, 1 << LayerMask.NameToLayer("Player")) > 0)
+                        {
+                            if (res[0].gameObject.GetInstanceID() == gameObject.GetInstanceID())
+                            {
+                                Debug.LogError("Player attempted to hit himself!");
+                            }
+                            else
+                            {
+                                var np = res[0].GetComponent<NetworkPlayer>();
+                                np.SetStun();
+                                GameManager.Instance.SendStun(np.NetworkID, _lastMov);
+                            }
                         }
 
                         yield return new WaitForSeconds(.5f);

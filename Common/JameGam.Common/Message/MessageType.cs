@@ -43,6 +43,8 @@ namespace JameGam.Common
         /// <summary>
         /// Sent by the server when a game has ended
         /// </summary>
-        ResetGame
+        ResetGame,
+
+        Stunned
     }
 }

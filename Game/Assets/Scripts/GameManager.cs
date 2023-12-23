@@ -237,12 +237,51 @@ namespace JameGam
                             }
                             break;
 
+                        case MessageType.AttackAnim:
+                            {
+                                var id = reader.ReadInt32();
+
+                                if (!_networkPlayers.ContainsKey(id))
+                                {
+                                    Debug.LogWarning($"Received message for a player not connected: {id}");
+                                }
+                                else if (_networkPlayers[id] == null)
+                                { } // Player not instanciated yet
+                                else
+                                {
+                                    _networkPlayers[id].SetAttackAnim();
+                                }
+                            }
+                            break;
+
+                        case MessageType.Stunned:
+                            {
+                                var id = reader.ReadInt32();
+                                var dir = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+
+                                if (id == _localPlayerNetworkID)
+                                {
+                                    _player.Die();
+                                }
+                                else if (!_networkPlayers.ContainsKey(id))
+                                {
+                                    Debug.LogWarning($"Received message for a player not connected: {id}");
+                                }
+                                else if (_networkPlayers[id] == null)
+                                { } // Player not instanciated yet
+                                else
+                                {
+                                    _networkPlayers[id].SetStun();
+                                }
+                            }
+                            break;
+
                         default:
                             Debug.LogWarning($"Unknown network message {msg}");
                             break;
                     }
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     Debug.LogException(e);
                 }
@@ -269,6 +308,20 @@ namespace JameGam
 
             writer.Write((ushort)MessageType.CarryChange);
             writer.Write((short)carry);
+
+            var data = ms.ToArray();
+            _tcp.GetStream().Write(data, 0, data.Length);
+        }
+
+        public void SendStun(int id, Vector2 dir)
+        {
+            using MemoryStream ms = new();
+            using BinaryWriter writer = new(ms);
+
+            writer.Write((ushort)MessageType.Stunned);
+            writer.Write(id);
+            writer.Write(dir.x);
+            writer.Write(dir.y);
 
             var data = ms.ToArray();
             _tcp.GetStream().Write(data, 0, data.Length);

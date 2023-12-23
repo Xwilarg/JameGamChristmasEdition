@@ -14,6 +14,7 @@ namespace JameGam.Player
         private bool _isDead;
 
         private bool _awaitingAttack;
+        private bool _awaitingStun;
 
         private void Awake()
         {
@@ -43,6 +44,12 @@ namespace JameGam.Player
                 StartCoroutine(Attack());
             }
 
+            if (_awaitingStun)
+            {
+                _awaitingStun = false;
+                StartCoroutine(Stun());
+            }
+
             UpdateParent();
         }
 
@@ -51,6 +58,13 @@ namespace JameGam.Player
             _anim.SetBool("IsAttacking", true);
             yield return new WaitForSeconds(.75f);
             _anim.SetBool("IsAttacking", false);
+        }
+
+        private IEnumerator Stun()
+        {
+            _anim.SetBool("IsStunned", true);
+            yield return new WaitForSeconds(1f);
+            _anim.SetBool("IsStunned", false);
         }
 
         public override void ResetC()
@@ -82,6 +96,11 @@ namespace JameGam.Player
         public void SetAttackAnim()
         {
             _awaitingAttack = true;
+        }
+
+        public void SetStun()
+        {
+            _awaitingStun = true;
         }
     }
 }
