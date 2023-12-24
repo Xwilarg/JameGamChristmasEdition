@@ -1,6 +1,7 @@
 ﻿using JameGam;
 using JameGam.Player;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Player
@@ -12,16 +13,34 @@ namespace Assets.Scripts.Player
 
         private bool _isDead;
 
+        private NextNode _target;
+
         private void Awake()
         {
             AwakeParent();
 
             GameManager.Instance.SoloAI++;
+
+            _target = GameObject.FindGameObjectsWithTag("Node").OrderBy(x => Vector2.Distance(transform.position, x.transform.position)).First().GetComponent<NextNode>();
         }
 
         private void Update()
         {
             UpdateParent();
+        }
+
+        private void FixedUpdate()
+        {
+            _rb.velocity = (_target.transform.position - transform.position).normalized / 2f;
+
+            _anim.SetFloat("X", _rb.velocity.x);
+            _anim.SetFloat("Y", _rb.velocity.y);
+
+            if (Vector2.Distance(_target.transform.position, transform.position) < .1f)
+            {
+                var targets = _target.NextNodes.Where(x => x.gameObject.GetInstanceID() != gameObject.GetInstanceID()).ToArray();
+                _target = targets[Random.Range(0, targets.Length)];
+            }
         }
 
         public override void ResetC()
