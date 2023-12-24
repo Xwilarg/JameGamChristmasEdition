@@ -13,6 +13,8 @@ namespace Assets.Scripts.Player
 
         private bool _isDead;
 
+        private int _awaitingStartState;
+
         private NextNode _target;
         private NextNode _last;
 
@@ -38,11 +40,20 @@ namespace Assets.Scripts.Player
             {
                 if (Vector2.Distance(PlayerController.Instance.transform.position, transform.position) < .5f)
                 {
+                    _awaitingStartState = 0;
                     _rb.velocity = Vector2.zero;
                 }
                 else
                 {
-                    _rb.velocity = (PlayerController.Instance.transform.position - transform.position).normalized / 2f;
+                    if (_awaitingStartState == 0)
+                    {
+                        _awaitingStartState = 1;
+                        StartCoroutine(DelayMove());
+                    }
+                    else if (_awaitingStartState == 2)
+                    {
+                        _rb.velocity = (PlayerController.Instance.transform.position - transform.position).normalized / 2f;
+                    }
                 }
             }
             else
@@ -74,6 +85,12 @@ namespace Assets.Scripts.Player
             var mov = _rb.velocity.normalized;
             _anim.SetFloat("X", mov.x);
             _anim.SetFloat("Y", mov.y);
+        }
+
+        private IEnumerator DelayMove()
+        {
+            yield return new WaitForSeconds(Random.Range(.1f, 1f));
+            _awaitingStartState = 2;
         }
 
         public override void ResetC()
