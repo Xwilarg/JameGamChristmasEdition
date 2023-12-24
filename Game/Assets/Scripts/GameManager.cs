@@ -52,6 +52,21 @@ namespace JameGam
         private bool _isSolo;
         public bool IsSolo => _isSolo;
 
+        private int _soloAI;
+        public int SoloAI
+        {
+            set
+            {
+                _soloAI = value;
+                if (_soloAI == 0)
+                {
+                    _objectiveText.text = "You are the best elf";
+                    _objectiveText.color = Color.green;
+                }
+            }
+            get => _soloAI;
+        }
+
         public void PlaySolo()
         {
             _isSolo = true;
@@ -134,6 +149,12 @@ namespace JameGam
 
         public void UpdateObjectiveDead()
         {
+            if (_isSolo && SoloAI == 0)
+            {
+                _objectiveText.text = "You <i>were</i> the best elf";
+                return;
+            }
+
             if (_isSolo) _objectiveText.text = "You lost";
             else _objectiveText.text = "Waiting for game to end...";
         }

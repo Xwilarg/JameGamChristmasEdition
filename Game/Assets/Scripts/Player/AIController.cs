@@ -15,6 +15,8 @@ namespace Assets.Scripts.Player
         private void Awake()
         {
             AwakeParent();
+
+            GameManager.Instance.SoloAI++;
         }
 
         private void Update()
@@ -46,6 +48,7 @@ namespace Assets.Scripts.Player
 
         public override void SetDeathStatus(bool value)
         {
+            GameManager.Instance.SoloAI--;
             _isDead = true;
             _anim.SetBool("IsDead", true);
         }
