@@ -71,7 +71,7 @@ namespace JameGam
 
         public void IncreaseBgmSpeed()
         {
-            _source.pitch = 1.5f;
+            //_source.pitch = 1.5f;
         }
 
         public void PlaySolo()
