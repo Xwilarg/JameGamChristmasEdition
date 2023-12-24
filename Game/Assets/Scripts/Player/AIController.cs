@@ -58,7 +58,7 @@ namespace Assets.Scripts.Player
 
                 if (Vector2.Distance(_target.transform.position, transform.position) < .1f)
                 {
-                    if (GameManager.Instance.DidAIDie)
+                    if (GameManager.Instance.DidAIDie && Random.Range(0, 100) < 90)
                     {
                         _target = _target.NextNodes.OrderByDescending(x => Vector2.Distance(x.transform.position, PlayerController.Instance.transform.position)).First();
                     }
@@ -93,7 +93,7 @@ namespace Assets.Scripts.Player
             yield return new WaitForSeconds(1f);
 
             _canMove = true;
-            _anim.SetBool("IsStunned", true);
+            _anim.SetBool("IsStunned", false);
             _isStunned = false;
             _rb.velocity = Vector2.zero;
         }
