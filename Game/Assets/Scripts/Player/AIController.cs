@@ -107,6 +107,7 @@ namespace Assets.Scripts.Player
             gameObject.layer = 0;
 
             GameManager.Instance.DidAIDie = true;
+            GameManager.Instance.IncreaseBgmSpeed();
         }
 
         public override int NetworkID => -1;

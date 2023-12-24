@@ -69,6 +69,11 @@ namespace JameGam
 
         public bool DidAIDie { set; get; }
 
+        public void IncreaseBgmSpeed()
+        {
+            _source.pitch = 1.5f;
+        }
+
         public void PlaySolo()
         {
             _isSolo = true;
