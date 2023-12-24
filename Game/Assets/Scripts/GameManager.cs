@@ -67,6 +67,8 @@ namespace JameGam
             get => _soloAI;
         }
 
+        public bool DidAIDie { set; get; }
+
         public void PlaySolo()
         {
             _isSolo = true;

@@ -8,12 +8,13 @@ namespace Assets.Scripts.Player
 {
     public class AIController : ACharacter
     {
-        private bool _canMove;
+        private bool _canMove = true;
         private bool _isStunned;
 
         private bool _isDead;
 
         private NextNode _target;
+        private NextNode _last;
 
         private void Awake()
         {
@@ -31,16 +32,48 @@ namespace Assets.Scripts.Player
 
         private void FixedUpdate()
         {
-            _rb.velocity = (_target.transform.position - transform.position).normalized / 2f;
+            if (!_canMove || _isStunned) return;
 
-            _anim.SetFloat("X", _rb.velocity.x);
-            _anim.SetFloat("Y", _rb.velocity.y);
-
-            if (Vector2.Distance(_target.transform.position, transform.position) < .1f)
+            if (_isDead)
             {
-                var targets = _target.NextNodes.Where(x => x.gameObject.GetInstanceID() != gameObject.GetInstanceID()).ToArray();
-                _target = targets[Random.Range(0, targets.Length)];
+                if (Vector2.Distance(PlayerController.Instance.transform.position, transform.position) < .5f)
+                {
+                    _rb.velocity = Vector2.zero;
+                }
+                else
+                {
+                    _rb.velocity = (PlayerController.Instance.transform.position - transform.position).normalized / 2f;
+                }
             }
+            else
+            {
+                if (GameManager.Instance.DidAIDie)
+                {
+                    _rb.velocity = 2f * (_target.transform.position - transform.position).normalized / 3f;
+                }
+                else
+                {
+                    _rb.velocity = (_target.transform.position - transform.position).normalized / 2f;
+                }
+
+                if (Vector2.Distance(_target.transform.position, transform.position) < .1f)
+                {
+                    if (GameManager.Instance.DidAIDie)
+                    {
+                        _target = _target.NextNodes.OrderByDescending(x => Vector2.Distance(x.transform.position, PlayerController.Instance.transform.position)).First();
+                    }
+                    else
+                    {
+                        _last = _target;
+                        var targets = _target.NextNodes.Where(x => x.gameObject.GetInstanceID() != _last.gameObject.GetInstanceID()).ToArray();
+                        _target = targets[Random.Range(0, targets.Length)];
+                    }
+                }
+            }
+
+            var mov = _rb.velocity.normalized;
+            _anim.SetFloat("X", mov.x);
+            _anim.SetFloat("Y", mov.y);
         }
 
         public override void ResetC()
@@ -70,6 +103,10 @@ namespace Assets.Scripts.Player
             GameManager.Instance.SoloAI--;
             _isDead = true;
             _anim.SetBool("IsDead", true);
+
+            gameObject.layer = 0;
+
+            GameManager.Instance.DidAIDie = true;
         }
 
         public override int NetworkID => -1;

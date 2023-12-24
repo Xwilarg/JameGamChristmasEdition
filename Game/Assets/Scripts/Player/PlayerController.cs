@@ -6,6 +6,8 @@ namespace JameGam.Player
 {
     public class PlayerController : ACharacter
     {
+        public static PlayerController Instance { get; private set; }
+
         [SerializeField]
         private GameObject _hitVfx;
 
@@ -36,6 +38,8 @@ namespace JameGam.Player
 
         private void Awake()
         {
+            Instance = this;
+
             AwakeParent();
             IsDead = !GameManager.Instance.IsSolo;
         }

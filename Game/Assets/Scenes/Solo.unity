@@ -1823,7 +1823,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1830957039877144529, guid: dbe3a68ca08e2e443b50d073cf2ebefc, type: 3}
       propertyPath: NextNodes.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1830957039877144529, guid: dbe3a68ca08e2e443b50d073cf2ebefc, type: 3}
       propertyPath: NextNodes.Array.data[0]
@@ -1833,6 +1833,10 @@ PrefabInstance:
       propertyPath: NextNodes.Array.data[1]
       value: 
       objectReference: {fileID: 1239158738}
+    - target: {fileID: 1830957039877144529, guid: dbe3a68ca08e2e443b50d073cf2ebefc, type: 3}
+      propertyPath: NextNodes.Array.data[2]
+      value: 
+      objectReference: {fileID: 1547729518}
     - target: {fileID: 7417864975446214718, guid: dbe3a68ca08e2e443b50d073cf2ebefc, type: 3}
       propertyPath: m_Name
       value: Node
